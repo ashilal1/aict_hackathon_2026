@@ -1,0 +1,32 @@
+name: バグ報告
+description: 動作がおかしい箇所を報告する
+title: "[bug] "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: 何が起きたか
+      description: 期待した動作と実際の動作
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 再現手順
+      placeholder: |
+        1. ○○ ページを開く
+        2. △△ をクリックする
+        3. エラーが表示される
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: 環境
+      placeholder: OS / ブラウザ / ブランチ / コミット
+  - type: textarea
+    id: logs
+    attributes:
+      label: ログ・スクリーンショット
+      render: shell

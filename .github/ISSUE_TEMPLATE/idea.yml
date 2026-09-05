@@ -1,0 +1,40 @@
+name: アイデア候補
+description: 企画段階のアイデアを整理する（対象 / 課題 / 価値）
+title: "[idea] "
+labels: ["idea"]
+body:
+  - type: input
+    id: name
+    attributes:
+      label: アイデア名
+    validations:
+      required: true
+  - type: textarea
+    id: target
+    attributes:
+      label: 対象（誰に向けたアイデアか）
+      placeholder: 例) 自炊が続かない一人暮らしの大学生
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: 課題（その人は何に困っているか）
+      placeholder: 例) 栄養が偏りがちだが、自炊する時間・気力がない
+    validations:
+      required: true
+  - type: textarea
+    id: value
+    attributes:
+      label: 価値（その課題に何を届けるか）
+      placeholder: 例) 冷蔵庫の余り物から AI がレシピを提案してくれる
+    validations:
+      required: true
+  - type: textarea
+    id: solution
+    attributes:
+      label: 考えているサービス・仕組み
+  - type: textarea
+    id: todo
+    attributes:
+      label: まだ確認・検討したいこと

@@ -1,0 +1,45 @@
+name: 機能追加・タスク
+description: 実装したい機能や作業タスクを登録する
+title: "[feat] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: やりたいこと
+      description: 何を実装・作業するか
+      placeholder: 例) 冷蔵庫の余り物を入力するとレシピを提案する画面を作る
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: 背景・目的
+      description: 誰の、どんな課題のために必要か（対象 / 課題 / 価値）
+    validations:
+      required: true
+  - type: textarea
+    id: done
+    attributes:
+      label: 完了条件
+      description: 何ができたら完了とみなすか
+      placeholder: |
+        - [ ] 食材を 3 つ入力できる
+        - [ ] レシピが 1 件以上表示される
+    validations:
+      required: true
+  - type: textarea
+    id: notes
+    attributes:
+      label: 補足・参考リンク
+      description: 参考資料、Decidim の投稿、デザイン案など
+  - type: dropdown
+    id: priority
+    attributes:
+      label: 優先度
+      options:
+        - 必須（11/8 のデモに必要）
+        - あると良い
+        - 余裕があれば
+    validations:
+      required: true

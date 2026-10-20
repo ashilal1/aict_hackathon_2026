@@ -5,7 +5,7 @@
 運営が公開した審査基準（[hackathon-overview.md「審査基準」](../hackathon-overview.md#審査基準)）の 6 項目に、今の案を当てはめたもの。
 「発表で何を言えば点になるか」と「10/26・11/8 までに何を用意するか」を決めるために使う。
 
-関連: [VPC](reverse-chef-vpc.md) / [AiCT との確認事項と根拠](reverse-chef-aict-checklist.md) / [これから考えること・決めること](../open-questions.md) / [ヒアリング依頼](../hearing-request.md)
+関連: [模擬審査（10/20）](reverse-chef-mock-judging.md) / [VPC](reverse-chef-vpc.md) / [AiCT との確認事項と根拠](reverse-chef-aict-checklist.md) / [これから考えること・決めること](../open-questions.md) / [ヒアリング依頼](../hearing-request.md)
 
 ---
 

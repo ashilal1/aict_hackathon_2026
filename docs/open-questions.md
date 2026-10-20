@@ -9,7 +9,7 @@
 - 進捗確認②（発表範囲の確定）: **10/26(月) 17:00 までに Decidim へ活動ログ**
 - 成果発表: **11/8(日)**
 
-関連: [審査基準との照合](products/reverse-chef-judging-fit.md) / [AiCT との確認事項と根拠](products/reverse-chef-aict-checklist.md) / [VPC](products/reverse-chef-vpc.md) / [ヒアリング依頼](hearing-request.md)
+関連: [審査基準との照合](products/reverse-chef-judging-fit.md) / [模擬審査（10/20）](products/reverse-chef-mock-judging.md) / [AiCT との確認事項と根拠](products/reverse-chef-aict-checklist.md) / [VPC](products/reverse-chef-vpc.md) / [ヒアリング依頼](hearing-request.md)
 
 ---
 

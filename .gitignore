@@ -20,3 +20,6 @@ __pycache__/
 venv/
 *.log
 loop
+
+# 高解像度の元画像（容量が大きいのでローカル保管）
+images/kozuyu-onbachan/sphere/full/

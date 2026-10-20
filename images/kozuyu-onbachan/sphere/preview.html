@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>こづゆばあちゃん 全方位プレビュー</title>
+<style>
+  :root { --bg: #f6f1e7; --fg: #3a2f25; --accent: #b4532a; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--fg); font-family: system-ui, sans-serif; }
+  .stage { width: min(80vw, 420px); aspect-ratio: 1; touch-action: none; cursor: grab; user-select: none; }
+  .stage img { width: 100%; height: 100%; display: block; pointer-events: none; }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 12px; }
+  button { border: 1px solid var(--accent); background: transparent; color: var(--accent); border-radius: 999px; padding: 6px 14px; font-size: 14px; cursor: pointer; }
+  button[aria-pressed="true"] { background: var(--accent); color: #fff; }
+  .info { font-size: 12px; opacity: .7; margin-top: 8px; text-align: center; font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body>
+<main>
+  <div class="stage" id="stage"><img id="view" alt="こづゆばあちゃん"></div>
+  <div class="controls">
+    <button data-mode="yaw" aria-pressed="false">横回転</button>
+    <button data-mode="pitch" aria-pressed="false">縦回転</button>
+    <button data-mode="both" aria-pressed="true">ぐるぐる</button>
+    <button data-mode="stop" aria-pressed="false">停止</button>
+  </div>
+  <p class="info" id="info"></p>
+</main>
+<script>
+  // 撮影データ: 横 10°刻み × 縦 -80〜+80° 10°刻み、真上/真下(±89°)は 0/90/180/270° の4枚
+  const DIR = 'small/';
+  const POLE_AZ = [0, 90, 180, 270];
+  const POLE_SPIN = -1; // 真上で方位が増えると画像は反時計回りに回る（撮影結果から確認済み）
+  const pad = (n, w) => String(Math.abs(n)).padStart(w, '0');
+  const elName = e => (e < 0 ? '-' : '+') + pad(e, 2);
+  const mod = (x, m) => ((x % m) + m) % m;
+
+  // yaw: 横方向の角度, pitch: 縦方向の角度（±90°を超えると頭の上/足の下を越えて裏側へ回り込む）
+  function frameFor(yaw, pitch) {
+    let p = mod(pitch + 180, 360) - 180, az = yaw, rot = 0;
+    if (Math.abs(p) > 90) { p = Math.sign(p) * 180 - p; az += 180; rot = 180; }
+    az = mod(az, 360);
+    if (Math.abs(p) > 85) {
+      const top = p > 0;
+      let best = 0, bd = 999;
+      for (const a of POLE_AZ) { const d = Math.abs(mod(az - a + 180, 360) - 180); if (d < bd) { bd = d; best = a; } }
+      const delta = mod(az - best + 180, 360) - 180;
+      rot += (top ? 1 : -1) * POLE_SPIN * delta;
+      return { file: `e${elName(top ? 89 : -89)}_a${pad(best, 3)}.webp`, rot };
+    }
+    const el = Math.max(-80, Math.min(80, Math.round(p / 10) * 10));
+    const a = mod(Math.round(az / 10) * 10, 360);
+    return { file: `e${elName(el)}_a${pad(a, 3)}.webp`, rot };
+  }
+
+  // 全フレームを先読み
+  const cache = new Map();
+  function preload(f) { if (!cache.has(f)) { const im = new Image(); im.src = DIR + f; cache.set(f, im); } }
+  for (let e = -80; e <= 80; e += 10) for (let a = 0; a < 360; a += 10) preload(`e${elName(e)}_a${pad(a, 3)}.webp`);
+  for (const a of POLE_AZ) { preload(`e+89_a${pad(a, 3)}.webp`); preload(`e-89_a${pad(a, 3)}.webp`); }
+
+  const view = document.getElementById('view'), info = document.getElementById('info');
+  let yaw = 0, pitch = 0, mode = 'both', last = performance.now();
+  function render() {
+    const { file, rot } = frameFor(yaw, pitch);
+    if (!view.src.endsWith(file)) view.src = DIR + file;
+    view.style.transform = rot ? `rotate(${rot}deg)` : '';
+    info.textContent = `横 ${mod(Math.round(yaw), 360)}° / 縦 ${mod(Math.round(pitch) + 180, 360) - 180}° → ${file}`;
+  }
+  function tick(t) {
+    const dt = (t - last) / 1000; last = t;
+    if (mode === 'yaw' || mode === 'both') yaw += 90 * dt;
+    if (mode === 'pitch' || mode === 'both') pitch += 60 * dt;
+    render(); requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  document.querySelectorAll('button[data-mode]').forEach(b => b.addEventListener('click', () => {
+    mode = b.dataset.mode;
+    document.querySelectorAll('button[data-mode]').forEach(x => x.setAttribute('aria-pressed', x === b));
+  }));
+
+  // ドラッグで自由に回す
+  const stage = document.getElementById('stage');
+  let drag = null;
+  stage.addEventListener('pointerdown', e => { drag = { x: e.clientX, y: e.clientY, yaw, pitch, mode }; mode = 'stop'; stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener('pointermove', e => { if (!drag) return; yaw = drag.yaw - (e.clientX - drag.x) * 0.6; pitch = drag.pitch + (e.clientY - drag.y) * 0.6; });
+  stage.addEventListener('pointerup', () => { drag = null; });
+</script>
+</body>
+</html>

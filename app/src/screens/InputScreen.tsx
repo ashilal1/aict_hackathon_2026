@@ -1,5 +1,6 @@
 import type { KozuyuData, PantryGroup } from '../data/types'
 import { Bubble, Card, DraftNote, GrannyFace } from '../components/parts'
+import { PhotoReader } from '../components/PhotoReader'
 
 const GROUPS: PantryGroup[] = ['調味料・だし', '具']
 
@@ -7,10 +8,11 @@ type Props = {
   data: KozuyuData
   checked: Set<string>
   onToggle: (id: string) => void
+  onRecognized: (ids: string[]) => void
   onSubmit: () => void
 }
 
-export function InputScreen({ data, checked, onToggle, onSubmit }: Props) {
+export function InputScreen({ data, checked, onToggle, onRecognized, onSubmit }: Props) {
   return (
     <>
       <div className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-28 md:gap-6 md:px-10 md:pt-6 md:pb-32">
@@ -19,6 +21,11 @@ export function InputScreen({ data, checked, onToggle, onSubmit }: Props) {
           <Bubble>{data.lines.greeting}</Bubble>
         </div>
         <h1 className="text-center text-2xl font-bold">材料入力</h1>
+
+        <PhotoReader pantry={data.pantry} onRecognized={onRecognized} />
+        <p className="text-center text-sm text-sumi">
+          写真で見つかった材料は、下の一覧で選んだ状態になります。違っていたら押して直してください
+        </p>
 
         <div className="grid gap-4 md:grid-cols-2 md:gap-6">
           {GROUPS.map((group) => (

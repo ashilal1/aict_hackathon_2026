@@ -20,7 +20,7 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 - テスト: Vitest（組み立てロジックの関数を中心に）
 - Lint / フォーマット: oxlint（Vite の最新テンプレートの初期設定）+ Prettier
 - パッケージマネージャ: npm（Node.js 20.19 以上）
-- DB / 外部 API: DB はなし。画面に出す事実は `kozuyu.json`（静的データ）だけ。写真から食材を判定する機能は MVP の後に足す（10/26 決定）。足すときは、画像対応の LLM を Vercel のサーバーレス関数（`/api/recognize`）から呼び、判定結果で入力画面のチェックを埋める。LLM は未定
+- DB / 外部 API: DB はなし。画面に出す事実は `kozuyu.json`（静的データ）だけ。写真から食材を判定するために、Vercel Functions（`app/api/recognize.ts`）から Claude（`claude-opus-5-5`、環境変数 `RECOGNIZE_MODEL` で変更可）を呼ぶ。判定結果は入力画面のチェックに反映し、使う人が直す。API キーは `ANTHROPIC_API_KEY`（Vercel の環境変数と `app/.env.local`）
 - デプロイ先: Vercel（GitHub 連携。PR ごとにプレビュー URL）
 
 ## コマンド

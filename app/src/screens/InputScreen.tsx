@@ -66,7 +66,7 @@ export function InputScreen({ data, checked, onToggle, onRecognized, onSubmit }:
           disabled={checked.size === 0}
           className="w-full rounded-full bg-shu py-4 text-lg md:mx-auto md:block md:max-w-md font-bold text-white shadow-lg transition-opacity disabled:opacity-40"
         >
-          ばあちゃんに見せる
+          こづゆばあちゃんに見せる
         </button>
       </div>
     </>

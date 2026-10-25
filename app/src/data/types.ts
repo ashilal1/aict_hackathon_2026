@@ -49,9 +49,12 @@ export type Template = {
 }
 
 export type Tasting = {
+  // 0〜100 の整数。DfC なら 100 −（違いの平均 × 10）に直してから入れる
   score: number
   people: number
   date: string
+  // 食べ比べた鍋に使った材料（pantry の id）。同じ材料がそろったときだけ、この点数を出す
+  ingredients: string[]
 }
 
 export type Consent = 'confirmed' | 'public_only' | 'none'

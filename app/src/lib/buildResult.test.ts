@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import kozuyu from '../data/kozuyu.json'
 import type { KozuyuData, Source } from '../data/types'
-import { SCORE_MAX, buildResult, toDisplaySource } from './buildResult'
+import { SCORE_MAX, buildResult, commentFor, toDisplaySource } from './buildResult'
 
 const data = kozuyu as KozuyuData
 
@@ -101,23 +101,38 @@ describe('本物との近さ（点数）', () => {
     expect(result.score.value).toBe(result.rows.reduce((sum, row) => sum + row.points, 0))
   })
 
-  it('食べ比べで測った点数があれば、見込みより優先する', () => {
-    const tasted: KozuyuData = {
-      ...data,
-      templates: data.templates.map((t) =>
-        t.id === 'dashi_oyster' ? { ...t, tasting: { score: 72, people: 20, date: '2026-11-01' } } : t,
-      ),
-    }
-    expect(buildResult(['dashinomoto', 'oyster'], tasted).score).toMatchObject({
-      kind: 'measured',
-      value: 72,
-      people: 20,
-    })
+  const tastedPot = ['dashinomoto', 'oyster', 'fu', 'jagaimo', 'ninjin', 'itokon', 'kikurage']
+  const tasted: KozuyuData = {
+    ...data,
+    templates: data.templates.map((t) =>
+      t.id === 'dashi_oyster'
+        ? { ...t, tasting: { score: 72, people: 20, date: '2026-11-01', ingredients: tastedPot } }
+        : t,
+    ),
+  }
+
+  it('食べ比べた鍋と同じ材料なら、測った点数を見込みより優先する', () => {
+    expect(buildResult(tastedPot, tasted).score).toMatchObject({ kind: 'measured', value: 72, people: 20 })
   })
 
-  it('点数に合ったばあちゃんの一言を選ぶ', () => {
-    expect(buildResult(all, data).score.comment).toBe(data.lines.score[0].text)
-    expect(buildResult([], data).score.comment).toBe(data.lines.score.at(-1)!.text)
+  it('同じ配合でも、具が違えば測った点数は使わず見込みに戻す', () => {
+    expect(buildResult(['dashinomoto', 'oyster'], tasted).score.kind).toBe('estimate')
+  })
+
+  it('「会津の本物で」と言うのは、代わりがきかない材料で足りなかった点だけ', () => {
+    // 豆麩 → お麩（代わりがきかない）: 20 − 8 = 12。省いたにんじんなどは数えない
+    const result = buildResult(['dashinomoto', 'oyster', 'fu'], data)
+    expect(result.score).toMatchObject({ kind: 'estimate', aizuGap: 12 })
+  })
+
+  it('点数に合ったばあちゃんの一言を選ぶ（JSON の並び順に頼らない）', () => {
+    const lines = data.lines.score
+    const top = lines.reduce((a, b) => (a.min > b.min ? a : b))
+    const bottom = lines.reduce((a, b) => (a.min < b.min ? a : b))
+    expect(commentFor(SCORE_MAX, lines)).toBe(top.text)
+    expect(commentFor(SCORE_MAX, [...lines].reverse())).toBe(top.text)
+    expect(commentFor(0, [...lines].reverse())).toBe(bottom.text)
+    expect(buildResult([], data).score.comment).toBe(bottom.text)
   })
 })
 
@@ -146,7 +161,17 @@ describe('kozuyu.json の中身', () => {
   })
 
   it('点数の一言は 0 点まで当てはまる', () => {
-    expect(data.lines.score.at(-1)!.min).toBe(0)
+    expect(data.lines.score.some((line) => line.min === 0)).toBe(true)
+  })
+
+  it('食べ比べの点数は 0〜100 の整数で、人数・日付・材料がそろっている', () => {
+    const tastings = data.templates.flatMap((t) => (t.tasting ? [t.tasting] : []))
+    for (const t of tastings) {
+      expect(Number.isInteger(t.score) && t.score >= 0 && t.score <= SCORE_MAX).toBe(true)
+      expect(Number.isInteger(t.people) && t.people >= 1).toBe(true)
+      expect(t.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(t.ingredients.filter((id) => !pantryIds.has(id))).toEqual([])
+    }
   })
 
   it('verdict と consent は決めた値だけ', () => {

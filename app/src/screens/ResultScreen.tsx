@@ -31,7 +31,8 @@ async function copyText(text: string) {
   }
 }
 
-function SubstituteRow({ row }: { row: Row }) {
+// 行ごとの点は見込みの内訳。測った点数を出しているときは、合計と食い違うので出さない
+function SubstituteRow({ row, showPoints }: { row: Row; showPoints: boolean }) {
   return (
     <li className="py-2">
       <div className="flex items-center justify-between gap-2">
@@ -45,9 +46,11 @@ function SubstituteRow({ row }: { row: Row }) {
           )}
         </span>
         <span className="flex shrink-0 items-center gap-2">
-          <span className="text-xs text-sumi tabular-nums">
-            {row.points}/{row.weight}点
-          </span>
+          {showPoints && (
+            <span className="text-xs text-sumi tabular-nums">
+              {row.points}/{row.weight}点
+            </span>
+          )}
           <VerdictTag verdict={row.verdict} />
         </span>
       </div>
@@ -112,7 +115,7 @@ export function ResultScreen({ data, result, onRestart }: Props) {
                 {result.rows
                   .filter((row) => row.section === section.id)
                   .map((row) => (
-                    <SubstituteRow key={row.partId} row={row} />
+                    <SubstituteRow key={row.partId} row={row} showPoints={result.score.kind === 'estimate'} />
                   ))}
               </ul>
             </div>

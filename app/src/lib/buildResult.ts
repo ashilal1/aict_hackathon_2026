@@ -1,4 +1,4 @@
-import type { KozuyuData, Part, Source, Template } from '../data/types'
+import type { KozuyuData, Part, Source, Tasting, Template } from '../data/types'
 
 // チェックされた材料と kozuyu.json から、結果画面に出すものを組み立てる。AI は使わない
 // ルールは docs/architecture.md 5 章。画面に出る文字と数字は、すべて data からの引用にする
@@ -30,8 +30,9 @@ export type AizuItem = {
 }
 
 // 本物との近さ。食べ比べで測った点数があればそれを、無ければ材料から出した見込みを使う
+// aizuGap: 代わりがきかない材料で足りなかった点（「会津の本物で」と言えるのはこの分だけ）
 export type Score =
-  | { kind: 'estimate'; value: number; comment: string }
+  | { kind: 'estimate'; value: number; aizuGap: number; comment: string }
   | { kind: 'measured'; value: number; people: number; date: string; comment: string }
 
 export const SCORE_MAX = 100
@@ -74,15 +75,30 @@ function buildRow(part: Part, checked: Set<string>): Row {
     : { ...base, text: 'なくても作れる', verdict: 'omit', points: 0 }
 }
 
+// 点数に当てはまる一言のうち、min が一番高いものを選ぶ（JSON の並び順には頼らない）
+export function commentFor(value: number, lines: KozuyuData['lines']['score']): string {
+  const fit = lines.filter((line) => value >= line.min)
+  return fit.reduce((best, line) => (line.min > best.min ? line : best), fit[0])?.text ?? ''
+}
+
+// 食べ比べた鍋と、本物・代わりの組み合わせがすべて同じなら true
+function sameAsTasted(rows: Row[], tasting: Tasting, data: KozuyuData): boolean {
+  const tasted = new Set(tasting.ingredients)
+  return data.parts.every((part, i) => buildRow(part, tasted).text === rows[i].text)
+}
+
 function buildScore(rows: Row[], template: Template | null, data: KozuyuData): Score {
-  const commentFor = (value: number) => data.lines.score.find((line) => value >= line.min)?.text ?? ''
-  if (template?.tasting) {
-    const { score, people, date } = template.tasting
-    return { kind: 'measured', value: score, people, date, comment: commentFor(score) }
+  const tasting = template?.tasting
+  if (tasting && sameAsTasted(rows, tasting, data)) {
+    const { score, people, date } = tasting
+    return { kind: 'measured', value: score, people, date, comment: commentFor(score, data.lines.score) }
   }
   // 行ごとに丸めた点を足すので、画面の内訳と合計が必ず一致する
   const value = rows.reduce((sum, row) => sum + row.points, 0)
-  return { kind: 'estimate', value, comment: commentFor(value) }
+  const aizuGap = rows
+    .filter((row) => row.verdict === 'irreplaceable')
+    .reduce((sum, row) => sum + row.weight - row.points, 0)
+  return { kind: 'estimate', value, aizuGap, comment: commentFor(value, data.lines.score) }
 }
 
 const GENERIC_LABEL: Record<Source['kind'], string> = {

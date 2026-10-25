@@ -7,7 +7,7 @@ const COUNT_UP_MS = 900
 // 0 から点数まで数え上げる（動きを減らす設定の端末では、すぐに出す）
 function useCountUp(target: number) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const [value, setValue] = useState(reduceMotion ? target : 0)
+  const [value, setValue] = useState(0)
   useEffect(() => {
     if (reduceMotion) return
     const start = performance.now()
@@ -20,7 +20,7 @@ function useCountUp(target: number) {
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
   }, [target, reduceMotion])
-  return value
+  return reduceMotion ? target : value
 }
 
 type Props = {
@@ -30,18 +30,29 @@ type Props = {
 
 export function ScoreCard({ score, rows }: Props) {
   const shown = useCountUp(score.value)
-  const rest = SCORE_MAX - score.value
 
   return (
     <Card className="text-center">
       <p className="text-sm font-bold text-sumi">本物との近さ</p>
-      <p className="mt-1 font-bold text-shu" aria-label={`${score.value} 点`}>
-        <span className="text-6xl tabular-nums md:text-7xl">{shown}</span>
-        <span className="ml-1 text-2xl">点</span>
-        <span className="ml-1 text-base text-sumi">/ {SCORE_MAX}</span>
+      <p className="mt-1 font-bold text-shu">
+        <span className="sr-only">
+          {score.value} 点（{SCORE_MAX} 点中）
+        </span>
+        <span aria-hidden>
+          <span className="text-6xl tabular-nums md:text-7xl">{shown}</span>
+          <span className="ml-1 text-2xl">点</span>
+          <span className="ml-1 text-base text-sumi">/ {SCORE_MAX}</span>
+        </span>
       </p>
 
-      <div className="mx-auto mt-3 h-3 max-w-md overflow-hidden rounded-full bg-stone-200">
+      <div
+        role="progressbar"
+        aria-label="本物との近さ"
+        aria-valuemin={0}
+        aria-valuemax={SCORE_MAX}
+        aria-valuenow={score.value}
+        className="mx-auto mt-3 h-3 max-w-md overflow-hidden rounded-full bg-stone-200"
+      >
         <div className="h-full rounded-full bg-shu" style={{ width: `${(shown / SCORE_MAX) * 100}%` }} />
       </div>
 
@@ -57,7 +68,9 @@ export function ScoreCard({ score, rows }: Props) {
         )}
       </p>
 
-      {rest > 0 && <p className="mt-3 text-lg font-bold">足りない {rest} 点ぶんは、会津の本物で。</p>}
+      {score.kind === 'estimate' && score.aizuGap > 0 && (
+        <p className="mt-3 text-lg font-bold">代わりがきかない {score.aizuGap} 点ぶんは、会津の本物で。</p>
+      )}
 
       <details className="mx-auto mt-4 max-w-xl text-left text-sm">
         <summary className="cursor-pointer text-center font-bold text-ai underline">点数の出し方</summary>

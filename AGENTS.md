@@ -18,7 +18,7 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 - 言語 / フレームワーク: TypeScript + React（Vite）。ルーターは使わず、画面（入力 → 判定 → 出力）は state で切り替える
 - スタイル: Tailwind CSS
 - テスト: Vitest（組み立てロジックの関数を中心に）
-- Lint / フォーマット: ESLint（Vite 初期設定）+ Prettier
+- Lint / フォーマット: oxlint（Vite の最新テンプレートの初期設定）+ Prettier
 - パッケージマネージャ: npm（Node.js 20.19 以上）
 - DB / 外部 API: DB はなし。画面に出す事実は `kozuyu.json`（静的データ）だけ。写真から食材を判定する機能は MVP の後に足す（10/26 決定）。足すときは、画像対応の LLM を Vercel のサーバーレス関数（`/api/recognize`）から呼び、判定結果で入力画面のチェックを埋める。LLM は未定
 - デプロイ先: Vercel（GitHub 連携。PR ごとにプレビュー URL）

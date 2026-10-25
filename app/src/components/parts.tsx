@@ -30,9 +30,17 @@ export function Bubble({ children }: { children: ReactNode }) {
   )
 }
 
-export function Card({ title, children }: { title?: string; children: ReactNode }) {
+export function Card({
+  title,
+  className = '',
+  children,
+}: {
+  title?: string
+  className?: string
+  children: ReactNode
+}) {
   return (
-    <section className="rounded-2xl bg-white p-4 shadow-sm">
+    <section className={`rounded-2xl bg-white p-4 shadow-sm md:p-6 ${className}`}>
       {title && <h2 className="mb-3 text-lg font-bold">{title}</h2>}
       {children}
     </section>

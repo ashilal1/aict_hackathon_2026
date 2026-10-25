@@ -3,21 +3,9 @@ name: CI
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, develop]
 
 jobs:
-  # 技術スタック決定後に、install / lint / test のステップを追加してください。
-  # 例 (Node.js):
-  #   - uses: actions/setup-node@v4
-  #     with: { node-version: 20, cache: npm }
-  #   - run: npm ci
-  #   - run: npm run lint
-  #   - run: npm test
-  # 例 (Python):
-  #   - uses: actions/setup-python@v5
-  #     with: { python-version: "3.12" }
-  #   - run: pip install -r requirements.txt
-  #   - run: pytest
   check:
     runs-on: ubuntu-latest
     steps:
@@ -30,5 +18,22 @@ jobs:
             exit 1
           fi
 
-      - name: Placeholder
-        run: echo "スタック決定後に lint / test を追加してください"
+  app:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm test
+      - run: npm run build

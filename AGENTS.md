@@ -18,27 +18,31 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 - 言語 / フレームワーク: TypeScript + React（Vite）。ルーターは使わず、画面（入力 → 判定 → 出力）は state で切り替える
 - スタイル: Tailwind CSS
 - テスト: Vitest（組み立てロジックの関数を中心に）
-- Lint / フォーマット: ESLint（Vite 初期設定）+ Prettier
+- Lint / フォーマット: oxlint（Vite の最新テンプレートの初期設定）+ Prettier
 - パッケージマネージャ: npm（Node.js 20.19 以上）
 - DB / 外部 API: DB はなし。画面に出す事実は `kozuyu.json`（静的データ）だけ。写真から食材を判定する機能は MVP の後に足す（10/26 決定）。足すときは、画像対応の LLM を Vercel のサーバーレス関数（`/api/recognize`）から呼び、判定結果で入力画面のチェックを埋める。LLM は未定
 - デプロイ先: Vercel（GitHub 連携。PR ごとにプレビュー URL）
 
 ## コマンド
 
-> TODO: アプリの雛形を作ったら、実際のコマンドとディレクトリを記入する。それまでエージェントは推測でコマンドを実行しない。
+アプリのコマンドはすべて `app/` で実行する。
 
 ```bash
 # セットアップ
-# install: (未定)
+npm install
 
-# 開発サーバー
-# dev: (未定)
+# 開発サーバー（http://localhost:5173）
+npm run dev
 
-# テスト
-# test: (未定)
+# テスト（組み立てロジックと kozuyu.json の中身）
+npm test
 
 # Lint / フォーマット
-# lint: (未定)
+npm run lint
+npm run format        # CI は npm run format:check
+
+# 本番ビルド
+npm run build
 ```
 
 ## ディレクトリ構成
@@ -48,12 +52,13 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 ├── AGENTS.md            # このファイル（エージェント共通ルール）
 ├── CLAUDE.md            # Claude Code 固有の設定（AGENTS.md を import）
 ├── README.md
+├── app/                 # アプリ本体（Vite + React）。詳細は app/README.md
+│   └── src/data/kozuyu.json  # 画面に出す事実のすべて
+├── images/              # ばあちゃんの 360° 画像など（app から直接読み込む）
 ├── docs/                # 企画・仕様・議事録などのドキュメント
 │   └── hackathon-overview.md
 └── .github/             # PR / Issue テンプレート、CI
 ```
-
-コードを置くディレクトリはスタック決定後に追加します。
 
 ## 開発の原則
 

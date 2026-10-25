@@ -16,6 +16,14 @@ npm run format       # Prettier で整形（CI は format:check）
 npm run build        # 本番ビルド（dist/）
 ```
 
+## 写真の判定（API キー）
+
+入力画面の「写真で読みとる」は `api/recognize.ts`（Vercel Functions）から Claude を呼ぶ。キーが無いときは判定できない旨を出し、手のチェックだけで最後まで進める。
+
+- 手元: `app/.env.example` を `app/.env.local` にコピーして `ANTHROPIC_API_KEY` を書く（`npm run dev` のままで `/api/recognize` も動く）
+- Vercel: プロジェクトの環境変数に `ANTHROPIC_API_KEY` を入れる
+- 写真は判定に使うだけで、保存もログ出力もしない。AI には `pantry` の id 以外を返させない
+
 ## どこに何があるか
 
 | パス | 中身 |
@@ -25,6 +33,7 @@ npm run build        # 本番ビルド（dist/）
 | `src/lib/buildResult.ts` | チェックされた材料から結果を組み立てるルール（AI なし） |
 | `src/lib/granny.ts` | ばあちゃんの 360° 画像（リポジトリ直下の `images/` から読み込む） |
 | `src/screens/` | 入力・判定・結果の画面 |
+| `api/recognize.ts` | 写真に写っている材料を判定する関数（`api/` に置いたファイルはすべて公開される関数になるので、テストは `test/` に置く） |
 
 ## kozuyu.json を書き換えるとき
 

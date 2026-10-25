@@ -2,76 +2,20 @@
   "dish": "こづゆ",
   "draft": true,
   "pantry": [
-    {
-      "id": "kaibashira",
-      "label": "干し貝柱",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "hotate_can",
-      "label": "ホタテ缶",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "dashinomoto",
-      "label": "だしの素",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "shirodashi",
-      "label": "白だし",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "oyster",
-      "label": "オイスターソース",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "hoshishiitake",
-      "label": "干し椎茸",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "shiitake",
-      "label": "生しいたけ",
-      "group": "調味料・だし"
-    },
-    {
-      "id": "mamefu",
-      "label": "豆麩",
-      "group": "具"
-    },
-    {
-      "id": "fu",
-      "label": "お麩",
-      "group": "具"
-    },
-    {
-      "id": "satoimo",
-      "label": "里芋",
-      "group": "具"
-    },
-    {
-      "id": "jagaimo",
-      "label": "じゃがいも",
-      "group": "具"
-    },
-    {
-      "id": "ninjin",
-      "label": "にんじん",
-      "group": "具"
-    },
-    {
-      "id": "itokon",
-      "label": "糸こんにゃく",
-      "group": "具"
-    },
-    {
-      "id": "kikurage",
-      "label": "きくらげ",
-      "group": "具"
-    }
+    { "id": "kaibashira", "label": "干し貝柱", "group": "調味料・だし" },
+    { "id": "hotate_can", "label": "ホタテ缶", "group": "調味料・だし" },
+    { "id": "dashinomoto", "label": "だしの素", "group": "調味料・だし" },
+    { "id": "shirodashi", "label": "白だし", "group": "調味料・だし" },
+    { "id": "oyster", "label": "オイスターソース", "group": "調味料・だし" },
+    { "id": "hoshishiitake", "label": "干し椎茸", "group": "調味料・だし" },
+    { "id": "shiitake", "label": "生しいたけ", "group": "調味料・だし" },
+    { "id": "mamefu", "label": "豆麩", "group": "具" },
+    { "id": "fu", "label": "お麩", "group": "具" },
+    { "id": "satoimo", "label": "里芋", "group": "具" },
+    { "id": "jagaimo", "label": "じゃがいも", "group": "具" },
+    { "id": "ninjin", "label": "にんじん", "group": "具" },
+    { "id": "itokon", "label": "糸こんにゃく", "group": "具" },
+    { "id": "kikurage", "label": "きくらげ", "group": "具" }
   ],
   "parts": [
     {
@@ -81,30 +25,15 @@
       "realId": "kaibashira",
       "essential": true,
       "substitutes": [
-        {
-          "requires": ["hotate_can"],
-          "text": "ホタテ缶（汁ごと）",
-          "verdict": "ok",
-          "closeness": 0.8
-        },
+        { "requires": ["hotate_can"], "text": "ホタテ缶（汁ごと）", "verdict": "ok", "closeness": 0.8 },
         {
           "requires": ["dashinomoto", "oyster"],
           "text": "だしの素＋オイスターソース少々",
           "verdict": "ok",
           "closeness": 0.6
         },
-        {
-          "requires": ["dashinomoto"],
-          "text": "だしの素",
-          "verdict": "irreplaceable",
-          "closeness": 0.35
-        },
-        {
-          "requires": ["shirodashi"],
-          "text": "白だし",
-          "verdict": "irreplaceable",
-          "closeness": 0.3
-        }
+        { "requires": ["dashinomoto"], "text": "だしの素", "verdict": "irreplaceable", "closeness": 0.35 },
+        { "requires": ["shirodashi"], "text": "白だし", "verdict": "irreplaceable", "closeness": 0.3 }
       ],
       "note": "干し貝柱は北海道・青森の産。会津も昔から外から買ってきた乾物",
       "weight": 35,
@@ -116,14 +45,7 @@
       "original": "干し椎茸",
       "realId": "hoshishiitake",
       "essential": false,
-      "substitutes": [
-        {
-          "requires": ["shiitake"],
-          "text": "生しいたけ",
-          "verdict": "ok",
-          "closeness": 0.6
-        }
-      ],
+      "substitutes": [{ "requires": ["shiitake"], "text": "生しいたけ", "verdict": "ok", "closeness": 0.6 }],
       "weight": 10,
       "aizu": []
     },
@@ -134,12 +56,7 @@
       "realId": "mamefu",
       "essential": true,
       "substitutes": [
-        {
-          "requires": ["fu"],
-          "text": "お麩（小さくちぎる）",
-          "verdict": "irreplaceable",
-          "closeness": 0.4
-        }
+        { "requires": ["fu"], "text": "お麩（小さくちぎる）", "verdict": "irreplaceable", "closeness": 0.4 }
       ],
       "weight": 20,
       "aizu": ["mamefu_maker"]
@@ -150,14 +67,7 @@
       "original": "里芋",
       "realId": "satoimo",
       "essential": false,
-      "substitutes": [
-        {
-          "requires": ["jagaimo"],
-          "text": "じゃがいも",
-          "verdict": "ok",
-          "closeness": 0.6
-        }
-      ],
+      "substitutes": [{ "requires": ["jagaimo"], "text": "じゃがいも", "verdict": "ok", "closeness": 0.6 }],
       "weight": 12,
       "aizu": []
     },
@@ -199,30 +109,18 @@
       "requires": ["kaibashira"],
       "servings": "4人分",
       "time": "前の晩に戻す＋煮て30分",
+      "tasting": null,
       "amounts": [
-        {
-          "item": "干し貝柱",
-          "qty": "4個"
-        },
-        {
-          "item": "水",
-          "qty": "800ml"
-        },
-        {
-          "item": "薄口しょうゆ",
-          "qty": "大さじ1"
-        },
-        {
-          "item": "塩",
-          "qty": "小さじ1/2"
-        }
+        { "item": "干し貝柱", "qty": "4個" },
+        { "item": "水", "qty": "800ml" },
+        { "item": "薄口しょうゆ", "qty": "大さじ1" },
+        { "item": "塩", "qty": "小さじ1/2" }
       ],
       "steps": [
         "前の晩に、干し貝柱を水に浸けて戻す",
         "具を小さく切り、戻し汁ごと鍋で煮る",
         "やわらかくなったら、しょうゆと塩で味をととのえる"
-      ],
-      "tasting": null
+      ]
     },
     {
       "id": "hotate",
@@ -230,30 +128,18 @@
       "requires": ["hotate_can"],
       "servings": "2人分",
       "time": "レンジで12分",
+      "tasting": null,
       "amounts": [
-        {
-          "item": "ホタテ缶",
-          "qty": "1缶（汁ごと）"
-        },
-        {
-          "item": "水",
-          "qty": "400ml"
-        },
-        {
-          "item": "薄口しょうゆ",
-          "qty": "小さじ2"
-        },
-        {
-          "item": "塩",
-          "qty": "ひとつまみ"
-        }
+        { "item": "ホタテ缶", "qty": "1缶（汁ごと）" },
+        { "item": "水", "qty": "400ml" },
+        { "item": "薄口しょうゆ", "qty": "小さじ2" },
+        { "item": "塩", "qty": "ひとつまみ" }
       ],
       "steps": [
         "具を小さく切る",
         "耐熱ボウルに水・ホタテ缶・具・調味料を入れる",
         "ラップをして、600Wのレンジで12分"
-      ],
-      "tasting": null
+      ]
     },
     {
       "id": "dashi_oyster",
@@ -261,30 +147,18 @@
       "requires": ["dashinomoto", "oyster"],
       "servings": "2人分",
       "time": "レンジで12分",
+      "tasting": null,
       "amounts": [
-        {
-          "item": "だしの素",
-          "qty": "小さじ1"
-        },
-        {
-          "item": "オイスターソース",
-          "qty": "小さじ1/2"
-        },
-        {
-          "item": "水",
-          "qty": "400ml"
-        },
-        {
-          "item": "薄口しょうゆ",
-          "qty": "小さじ1"
-        }
+        { "item": "だしの素", "qty": "小さじ1" },
+        { "item": "オイスターソース", "qty": "小さじ1/2" },
+        { "item": "水", "qty": "400ml" },
+        { "item": "薄口しょうゆ", "qty": "小さじ1" }
       ],
       "steps": [
         "具を小さく切る",
         "耐熱ボウルに水・だしの素・オイスターソース・具を入れる",
         "ラップをして600Wのレンジで12分。しょうゆで味をととのえる"
-      ],
-      "tasting": null
+      ]
     },
     {
       "id": "dashinomoto",
@@ -292,26 +166,17 @@
       "requires": ["dashinomoto"],
       "servings": "2人分",
       "time": "レンジで12分",
+      "tasting": null,
       "amounts": [
-        {
-          "item": "だしの素",
-          "qty": "小さじ1"
-        },
-        {
-          "item": "水",
-          "qty": "400ml"
-        },
-        {
-          "item": "薄口しょうゆ",
-          "qty": "小さじ2"
-        }
+        { "item": "だしの素", "qty": "小さじ1" },
+        { "item": "水", "qty": "400ml" },
+        { "item": "薄口しょうゆ", "qty": "小さじ2" }
       ],
       "steps": [
         "具を小さく切る",
         "耐熱ボウルに水・だしの素・具を入れる",
         "ラップをして600Wのレンジで12分。しょうゆで味をととのえる"
-      ],
-      "tasting": null
+      ]
     },
     {
       "id": "shirodashi",
@@ -319,18 +184,12 @@
       "requires": ["shirodashi"],
       "servings": "2人分",
       "time": "レンジで12分",
+      "tasting": null,
       "amounts": [
-        {
-          "item": "白だし",
-          "qty": "大さじ1と1/2"
-        },
-        {
-          "item": "水",
-          "qty": "400ml"
-        }
+        { "item": "白だし", "qty": "大さじ1と1/2" },
+        { "item": "水", "qty": "400ml" }
       ],
-      "steps": ["具を小さく切る", "耐熱ボウルに水・白だし・具を入れる", "ラップをして、600Wのレンジで12分"],
-      "tasting": null
+      "steps": ["具を小さく切る", "耐熱ボウルに水・白だし・具を入れる", "ラップをして、600Wのレンジで12分"]
     }
   ],
   "sources": [
@@ -349,22 +208,10 @@
     "judging": "どれどれ…",
     "noTemplate": "だしになるもんが無えな。これだけは用意してけろ",
     "score": [
-      {
-        "min": 90,
-        "text": "ほとんど本物だ。会津の台所の味がすっぞ"
-      },
-      {
-        "min": 70,
-        "text": "よぐできた。あとは会津の本物で仕上げてけろ"
-      },
-      {
-        "min": 40,
-        "text": "これでもこづゆだ。足りねえ分は、会津で食べてけろ"
-      },
-      {
-        "min": 0,
-        "text": "まずはこれで作ってみっせ。本物は会津で待ってっから"
-      }
+      { "min": 90, "text": "ほとんど本物だ。会津の台所の味がすっぞ" },
+      { "min": 70, "text": "よぐできた。あとは会津の本物で仕上げてけろ" },
+      { "min": 40, "text": "これでもこづゆだ。足りねえ分は、会津で食べてけろ" },
+      { "min": 0, "text": "まずはこれで作ってみっせ。本物は会津で待ってっから" }
     ]
   }
 }

@@ -31,6 +31,9 @@ export default function App() {
       return next
     })
 
+  // 写真で見つかった材料は、いまのチェックに足す（外すのは使う人が手で）
+  const addRecognized = (ids: string[]) => setChecked((prev) => new Set([...prev, ...ids]))
+
   const showResult = useCallback(() => setScreen('result'), [])
 
   return (
@@ -41,7 +44,13 @@ export default function App() {
         <p className="text-sm text-sumi">代用でここまで。残りは、会津で。</p>
       </header>
       {screen === 'input' && (
-        <InputScreen data={data} checked={checked} onToggle={toggle} onSubmit={() => setScreen('judging')} />
+        <InputScreen
+          data={data}
+          checked={checked}
+          onToggle={toggle}
+          onRecognized={addRecognized}
+          onSubmit={() => setScreen('judging')}
+        />
       )}
       {screen === 'judging' && <JudgingScreen line={data.lines.judging} onDone={showResult} />}
       {screen === 'result' && (

@@ -34,8 +34,12 @@ export default function App() {
   const showResult = useCallback(() => setScreen('result'), [])
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-kinari shadow-xl">
-      <div className="aizu-momen h-3 shrink-0" aria-hidden />
+    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-kinari shadow-xl md:my-6 md:min-h-[calc(100dvh-3rem)] md:max-w-5xl md:overflow-hidden md:rounded-3xl">
+      <div className="aizu-momen h-3 shrink-0 md:h-4" aria-hidden />
+      <header className="hidden items-center justify-between px-10 pt-5 md:flex">
+        <p className="text-xl font-bold">こづゆばあちゃんの台所</p>
+        <p className="text-sm text-sumi">代用でここまで。残りは、会津で。</p>
+      </header>
       {screen === 'input' && (
         <InputScreen data={data} checked={checked} onToggle={toggle} onSubmit={() => setScreen('judging')} />
       )}

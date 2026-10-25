@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react'
-import { GRANNY_FRAMES } from '../lib/granny'
+import { GRANNY_FRONT, SPIN_MS, smallUrl, spinView, type GrannyView } from '../lib/granny'
 
-// 後ろ向き（180°）から半周して正面で止まり、少し間を置いて結果へ進む
-const SPIN_MS = 1600
+// 横と縦に 1 周ずつ回って正面で止まり、少し間を置いて結果へ進む
 const HOLD_MS = 700
-
-const easeOutCubic = (t: number) => 1 - (1 - t) ** 3
 
 type Props = {
   line: string
@@ -14,7 +11,7 @@ type Props = {
 
 export function JudgingScreen({ line, onDone }: Props) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const [frame, setFrame] = useState(reduceMotion ? 0 : 18)
+  const [view, setView] = useState<GrannyView | null>(null)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
@@ -24,10 +21,8 @@ export function JudgingScreen({ line, onDone }: Props) {
     let raf = 0
     const tick = (now: number) => {
       const elapsed = now - start
-      if (spinMs > 0) {
-        const azimuth = 180 + 180 * easeOutCubic(Math.min(elapsed / spinMs, 1))
-        setFrame(Math.round(azimuth / 10) % GRANNY_FRAMES.length)
-      }
+      // 回り終わったら null に戻し、高画質の正面の画像を出す
+      setView(elapsed < spinMs ? spinView(elapsed / spinMs) : null)
       setProgress(Math.min(elapsed / total, 1))
       if (elapsed < total) {
         raf = requestAnimationFrame(tick)
@@ -39,21 +34,24 @@ export function JudgingScreen({ line, onDone }: Props) {
     return () => cancelAnimationFrame(raf)
   }, [reduceMotion, onDone])
 
+  const src = view ? (smallUrl(view.file) ?? GRANNY_FRONT) : GRANNY_FRONT
+
   return (
-    <div className="flex flex-1 flex-col px-4 pt-6 pb-8">
-      <div className="relative min-h-80 flex-1 overflow-hidden">
-        {/* 全身の画像から上半身を、空いている高さいっぱいに見せる */}
+    <div className="flex flex-1 flex-col items-center px-4 pt-6 pb-8 md:justify-center">
+      <div className="relative w-full max-w-md md:max-w-lg">
+        {/* 全身が収まるように、正方形の画像をそのまま見せる */}
         <img
-          src={GRANNY_FRAMES[frame]}
+          src={src}
           alt="こづゆばあちゃんが材料を見ている"
-          className="absolute top-[-4%] left-1/2 h-[170%] w-auto max-w-none -translate-x-[48%]"
+          className="mx-auto aspect-square max-h-[68dvh] w-full object-contain"
+          style={view?.rot ? { transform: `rotate(${view.rot}deg)` } : undefined}
         />
-        <div className="absolute top-[38%] left-0 rounded-2xl bg-white px-4 py-2 text-lg font-bold shadow-md">
+        <div className="absolute top-[30%] left-0 rounded-2xl bg-white px-4 py-2 text-lg font-bold shadow-md md:-left-8 md:text-xl">
           {line}
         </div>
       </div>
 
-      <div className="mt-4">
+      <div className="mt-6 w-full max-w-md">
         <div className="h-2 overflow-hidden rounded-full bg-stone-200">
           <div className="h-full rounded-full bg-ai" style={{ width: `${progress * 100}%` }} />
         </div>

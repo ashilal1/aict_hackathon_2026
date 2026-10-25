@@ -19,3 +19,12 @@ __pycache__/
 .venv/
 venv/
 *.log
+loop
+
+# 高解像度の元画像（容量が大きいのでローカル保管）
+# ただしアプリの判定シーンで使う正面の高さの 36 枚（約 1.6MB）だけはコミットする
+images/kozuyu-onbachan/sphere/full/*
+!images/kozuyu-onbachan/sphere/full/e+00_a*.webp
+
+# Vercel
+.vercel

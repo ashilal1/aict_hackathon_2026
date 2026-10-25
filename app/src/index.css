@@ -1,0 +1,31 @@
+@import 'tailwindcss';
+@import '@fontsource/zen-maru-gothic/500.css';
+@import '@fontsource/zen-maru-gothic/700.css';
+
+@theme {
+  --color-kinari: #f5efe3;
+  --color-ai: #1f2a44;
+  --color-shu: #c0392b;
+  --color-kincha: #b8862b;
+  --color-sumi: #4a4a4a;
+  --font-sans: 'Zen Maru Gothic', system-ui, sans-serif;
+}
+
+body {
+  @apply bg-[#e6e7eb] text-ai antialiased;
+}
+
+/* 会津木綿の縦縞。ヘッダーの細い帯にだけ使う */
+.aizu-momen {
+  background: repeating-linear-gradient(
+    90deg,
+    #1f2a44 0 6px,
+    #8b2e2a 6px 9px,
+    #1f2a44 9px 14px,
+    #c9a24b 14px 16px,
+    #2f4a3a 16px 20px,
+    #c0392b 20px 22px,
+    #1f2a44 22px 28px,
+    #e8dcc4 28px 30px
+  );
+}

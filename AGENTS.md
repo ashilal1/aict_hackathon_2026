@@ -8,36 +8,41 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 - **名称**: AiCT ハッカソン 2026「会津の"おいしい"を、もっとおもしろくする。」
 - **テーマ**: 食 × 地域 × AI で会津の食をアップデートする
 - **ゴール**: 2026/11/8 の AiCT じものまつりで「人に見せられるもの」を発表する
-- **ステータス**: アイデア検討中。何をつくるかは 9/24 の最終決定会で 1 案に決まる
+- **ステータス**: 候補案「こづゆばあちゃんの台所」（チーム D ソンご飯）を検討中。最終アイデアは 10/17 に決まる（当初予定の 9/24 から変更）
 - 詳細は [docs/hackathon-overview.md](docs/hackathon-overview.md) を参照
 
-技術スタックは未決定です。決まり次第、このファイルの「技術スタック」「コマンド」セクションを更新してください。
+技術スタックは 2026-10-26 に決定した（構成の背景は [docs/architecture.md](docs/architecture.md)）。
 
 ## 技術スタック
 
-> TODO: 9/28 の開発スタート講座までに決定して記入する
-
-- 言語 / フレームワーク: 未定
-- パッケージマネージャ: 未定
-- DB / 外部 API: 未定
-- デプロイ先: 未定
+- 言語 / フレームワーク: TypeScript + React（Vite）。ルーターは使わず、画面（入力 → 判定 → 出力）は state で切り替える
+- スタイル: Tailwind CSS
+- テスト: Vitest（組み立てロジックの関数を中心に）
+- Lint / フォーマット: oxlint（Vite の最新テンプレートの初期設定）+ Prettier
+- パッケージマネージャ: npm（Node.js 20.19 以上）
+- DB / 外部 API: DB はなし。画面に出す事実は `kozuyu.json`（静的データ）だけ。写真から食材を判定する機能は MVP の後に足す（10/26 決定）。足すときは、画像対応の LLM を Vercel のサーバーレス関数（`/api/recognize`）から呼び、判定結果で入力画面のチェックを埋める。LLM は未定
+- デプロイ先: Vercel（GitHub 連携。PR ごとにプレビュー URL）
 
 ## コマンド
 
-> TODO: スタック決定後に記入する。エージェントは推測でコマンドを実行しない。
+アプリのコマンドはすべて `app/` で実行する。
 
 ```bash
 # セットアップ
-# install: (未定)
+npm install
 
-# 開発サーバー
-# dev: (未定)
+# 開発サーバー（http://localhost:5173）
+npm run dev
 
-# テスト
-# test: (未定)
+# テスト（組み立てロジックと kozuyu.json の中身）
+npm test
 
 # Lint / フォーマット
-# lint: (未定)
+npm run lint
+npm run format        # CI は npm run format:check
+
+# 本番ビルド
+npm run build
 ```
 
 ## ディレクトリ構成
@@ -47,12 +52,13 @@ AIコーディングエージェント（Claude Code / Codex / Cursor / Copilot 
 ├── AGENTS.md            # このファイル（エージェント共通ルール）
 ├── CLAUDE.md            # Claude Code 固有の設定（AGENTS.md を import）
 ├── README.md
+├── app/                 # アプリ本体（Vite + React）。詳細は app/README.md
+│   └── src/data/kozuyu.json  # 画面に出す事実のすべて
+├── images/              # ばあちゃんの 360° 画像など（app から直接読み込む）
 ├── docs/                # 企画・仕様・議事録などのドキュメント
 │   └── hackathon-overview.md
 └── .github/             # PR / Issue テンプレート、CI
 ```
-
-コードを置くディレクトリはスタック決定後に追加します。
 
 ## 開発の原則
 

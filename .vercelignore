@@ -1,0 +1,8 @@
+# CLI から deploy するとき、Vercel に送るのは app/ と、app が読み込むばあちゃんの画像だけにする
+/*
+!/app
+!/images
+/app/node_modules
+/app/dist
+/images/kozuyu-onbachan/sphere/full/*
+!/images/kozuyu-onbachan/sphere/full/e+00_a*.webp

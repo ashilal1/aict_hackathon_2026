@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { KozuyuData, Part } from '../data/types'
 import type { Result, Row } from '../lib/buildResult'
 import { Bubble, Card, DraftNote, GrannyFace, VerdictTag } from '../components/parts'
+import { ScoreCard } from '../components/ScoreCard'
 
 const SECTIONS: { id: Part['section']; label: string }[] = [
   { id: 'dashi', label: 'だし' },
@@ -30,7 +31,8 @@ async function copyText(text: string) {
   }
 }
 
-function SubstituteRow({ row }: { row: Row }) {
+// 行ごとの点は見込みの内訳。測った点数を出しているときは、合計と食い違うので出さない
+function SubstituteRow({ row, showPoints }: { row: Row; showPoints: boolean }) {
   return (
     <li className="py-2">
       <div className="flex items-center justify-between gap-2">
@@ -43,7 +45,14 @@ function SubstituteRow({ row }: { row: Row }) {
             </>
           )}
         </span>
-        <VerdictTag verdict={row.verdict} />
+        <span className="flex shrink-0 items-center gap-2">
+          {showPoints && (
+            <span className="text-xs text-sumi tabular-nums">
+              {row.points}/{row.weight}点
+            </span>
+          )}
+          <VerdictTag verdict={row.verdict} />
+        </span>
       </div>
       {row.note && <p className="mt-1 text-xs text-sumi">{row.note}</p>}
     </li>
@@ -62,8 +71,10 @@ export function ResultScreen({ data, result, onRestart }: Props) {
     <div className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-8 md:gap-6 md:px-10 md:pt-6">
       <div className="flex items-center gap-4 md:justify-center">
         <GrannyFace size={64} />
-        <Bubble>{template ? data.lines.result : data.lines.noTemplate}</Bubble>
+        <Bubble>{template ? result.score.comment : data.lines.noTemplate}</Bubble>
       </div>
+
+      {template && <ScoreCard score={result.score} rows={result.rows} />}
 
       <div className="grid gap-4 md:grid-cols-2 md:items-start md:gap-6">
         {template ? (
@@ -104,7 +115,7 @@ export function ResultScreen({ data, result, onRestart }: Props) {
                 {result.rows
                   .filter((row) => row.section === section.id)
                   .map((row) => (
-                    <SubstituteRow key={row.partId} row={row} />
+                    <SubstituteRow key={row.partId} row={row} showPoints={result.score.kind === 'estimate'} />
                   ))}
               </ul>
             </div>

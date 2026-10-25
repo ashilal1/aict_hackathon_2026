@@ -12,6 +12,9 @@ export type Row = {
   text: string
   verdict: RowVerdict
   note?: string
+  // 「本物との近さ」のうち、この材料で取れた点と配点
+  points: number
+  weight: number
 }
 
 export type DisplaySource = {
@@ -26,6 +29,13 @@ export type AizuItem = {
   sources: DisplaySource[]
 }
 
+// 本物との近さ。食べ比べで測った点数があればそれを、無ければ材料から出した見込みを使う
+export type Score =
+  | { kind: 'estimate'; value: number; comment: string }
+  | { kind: 'measured'; value: number; people: number; date: string; comment: string }
+
+export const SCORE_MAX = 100
+
 export type Result = {
   template: Template | null
   // 配合テンプレがどれも作れないとき、どれか 1 つあれば作れる材料
@@ -33,6 +43,7 @@ export type Result = {
   rows: Row[]
   aizu: AizuItem[]
   memo: string | null
+  score: Score
 }
 
 const MEMO_MAX_LINES = 3
@@ -42,18 +53,36 @@ function pickTemplate(checked: Set<string>, templates: Template[]): Template | n
   return templates.find((t) => t.requires.every((id) => checked.has(id))) ?? null
 }
 
+// 見込みの点数は「材料ごとの配点 × 代わりの近さ」。本物なら配点まるごと、無ければ 0 点
 function buildRow(part: Part, checked: Set<string>): Row {
-  const base = { partId: part.id, section: part.section, original: part.original, note: part.note }
+  const base = {
+    partId: part.id,
+    section: part.section,
+    original: part.original,
+    note: part.note,
+    weight: part.weight,
+  }
   if (checked.has(part.realId)) {
-    return { ...base, text: part.original, verdict: 'real' }
+    return { ...base, text: part.original, verdict: 'real', points: part.weight }
   }
   const sub = part.substitutes.find((s) => s.requires.every((id) => checked.has(id)))
   if (sub) {
-    return { ...base, text: sub.text, verdict: sub.verdict }
+    return { ...base, text: sub.text, verdict: sub.verdict, points: Math.round(part.weight * sub.closeness) }
   }
   return part.essential
-    ? { ...base, text: '代わりなし', verdict: 'irreplaceable' }
-    : { ...base, text: 'なくても作れる', verdict: 'omit' }
+    ? { ...base, text: '代わりなし', verdict: 'irreplaceable', points: 0 }
+    : { ...base, text: 'なくても作れる', verdict: 'omit', points: 0 }
+}
+
+function buildScore(rows: Row[], template: Template | null, data: KozuyuData): Score {
+  const commentFor = (value: number) => data.lines.score.find((line) => value >= line.min)?.text ?? ''
+  if (template?.tasting) {
+    const { score, people, date } = template.tasting
+    return { kind: 'measured', value: score, people, date, comment: commentFor(score) }
+  }
+  // 行ごとに丸めた点を足すので、画面の内訳と合計が必ず一致する
+  const value = rows.reduce((sum, row) => sum + row.points, 0)
+  return { kind: 'estimate', value, comment: commentFor(value) }
 }
 
 const GENERIC_LABEL: Record<Source['kind'], string> = {
@@ -107,5 +136,5 @@ export function buildResult(checkedIds: Iterable<string>, data: KozuyuData): Res
       return { original: row.original, sources }
     })
 
-  return { template, needOneOf, rows, aizu, memo: buildMemo(aizu) }
+  return { template, needOneOf, rows, aizu, memo: buildMemo(aizu), score: buildScore(rows, template, data) }
 }

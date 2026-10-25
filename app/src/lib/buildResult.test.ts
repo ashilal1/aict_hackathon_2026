@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import kozuyu from '../data/kozuyu.json'
 import type { KozuyuData, Source } from '../data/types'
-import { buildResult, toDisplaySource } from './buildResult'
+import { SCORE_MAX, buildResult, toDisplaySource } from './buildResult'
 
 const data = kozuyu as KozuyuData
 
@@ -86,6 +86,41 @@ describe('会津から買うなら', () => {
   })
 })
 
+describe('本物との近さ（点数）', () => {
+  const all = data.pantry.map((p) => p.id)
+
+  it('全部本物なら 100 点、何も無ければ 0 点', () => {
+    expect(buildResult(all, data).score.value).toBe(SCORE_MAX)
+    expect(buildResult([], data).score.value).toBe(0)
+  })
+
+  it('見込みの点数は「配点 × 代わりの近さ」を材料ごとに足したもの', () => {
+    // 干し貝柱 35 × だしの素＋オイスターソース 0.6 = 21、豆麩 20 × お麩 0.4 = 8、にんじん 8
+    const result = buildResult(['dashinomoto', 'oyster', 'fu', 'ninjin'], data)
+    expect(result.score).toMatchObject({ kind: 'estimate', value: 21 + 8 + 8 })
+    expect(result.score.value).toBe(result.rows.reduce((sum, row) => sum + row.points, 0))
+  })
+
+  it('食べ比べで測った点数があれば、見込みより優先する', () => {
+    const tasted: KozuyuData = {
+      ...data,
+      templates: data.templates.map((t) =>
+        t.id === 'dashi_oyster' ? { ...t, tasting: { score: 72, people: 20, date: '2026-11-01' } } : t,
+      ),
+    }
+    expect(buildResult(['dashinomoto', 'oyster'], tasted).score).toMatchObject({
+      kind: 'measured',
+      value: 72,
+      people: 20,
+    })
+  })
+
+  it('点数に合ったばあちゃんの一言を選ぶ', () => {
+    expect(buildResult(all, data).score.comment).toBe(data.lines.score[0].text)
+    expect(buildResult([], data).score.comment).toBe(data.lines.score.at(-1)!.text)
+  })
+})
+
 // チームが kozuyu.json を書き換えたときに、つづりの間違いで画面が壊れないようにする
 describe('kozuyu.json の中身', () => {
   const pantryIds = new Set(data.pantry.map((p) => p.id))
@@ -102,6 +137,16 @@ describe('kozuyu.json の中身', () => {
   it('aizu はすべて sources にある', () => {
     const ids = data.parts.flatMap((p) => p.aizu)
     expect(ids.filter((id) => !sourceIds.has(id))).toEqual([])
+  })
+
+  it('配点は合わせて 100、代わりの近さは 0〜1', () => {
+    expect(data.parts.reduce((sum, p) => sum + p.weight, 0)).toBe(SCORE_MAX)
+    const closeness = data.parts.flatMap((p) => p.substitutes.map((s) => s.closeness))
+    expect(closeness.every((c) => c >= 0 && c <= 1)).toBe(true)
+  })
+
+  it('点数の一言は 0 点まで当てはまる', () => {
+    expect(data.lines.score.at(-1)!.min).toBe(0)
   })
 
   it('verdict と consent は決めた値だけ', () => {

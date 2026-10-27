@@ -293,6 +293,8 @@
 
 当日か翌日までに埋めて、チームに共有する。分かったことは [open-questions.md](open-questions.md) の該当行に反映する。
 
+**10/26 に実施。結果は [hearing-takino-result.md](hearing-takino-result.md) にまとめた。** 下の表で記録が無い項目は、結果の 3 章「記録できていないこと」に挙げてある。
+
 | 項目 | 内容 |
 |---|---|
 | 日時 | |

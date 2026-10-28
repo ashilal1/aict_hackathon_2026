@@ -15,6 +15,7 @@ export type Row = {
   // 「本物との近さ」のうち、この材料で取れた点と配点
   points: number
   weight: number
+  trivia?: Part['substitutes'][number]['trivia']
 }
 
 export type DisplaySource = {
@@ -68,7 +69,13 @@ function buildRow(part: Part, checked: Set<string>): Row {
   }
   const sub = part.substitutes.find((s) => s.requires.every((id) => checked.has(id)))
   if (sub) {
-    return { ...base, text: sub.text, verdict: sub.verdict, points: Math.round(part.weight * sub.closeness) }
+    return {
+      ...base,
+      text: sub.text,
+      verdict: sub.verdict,
+      points: Math.round(part.weight * sub.closeness),
+      trivia: sub.trivia,
+    }
   }
   return part.essential
     ? { ...base, text: '代わりなし', verdict: 'irreplaceable', points: 0 }

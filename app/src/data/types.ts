@@ -17,6 +17,12 @@ export type Substitute = {
   verdict: Verdict
   // 本物を 1 としたときの近さ（0〜1）。食べ比べが済むまでは仮の値
   closeness: number
+  // 代替食材を選んだ理由と違い。確認済みの範囲だけをモーダルに表示する
+  trivia: {
+    difference: string
+    tip: string
+    caution: string
+  }
 }
 
 export type Part = {
@@ -80,7 +86,10 @@ export type KozuyuData = {
   lines: {
     greeting: string
     judging: string
+    recipeJudging: string
     noTemplate: string
+    completion: string
+    cookingTips: string[]
     // 点数ごとのばあちゃんの一言。min 点以上で、上から最初に当てはまるものを使う
     score: { min: number; text: string }[]
   }

@@ -32,7 +32,10 @@ describe('本物と今回の代わり', () => {
   })
 
   it('代わりは上から順に、そろう最初のものを出す', () => {
-    expect(rowOf(['hotate_can', 'dashinomoto'], 'kaibashira').text).toBe('ホタテ缶（汁ごと）')
+    expect(rowOf(['hotate_can', 'dashinomoto'], 'kaibashira')).toMatchObject({
+      text: 'ホタテ缶（汁ごと）',
+      trivia: { difference: expect.any(String), tip: expect.any(String), caution: expect.any(String) },
+    })
     expect(rowOf(['dashinomoto'], 'kaibashira')).toMatchObject({
       text: 'だしの素',
       verdict: 'irreplaceable',
@@ -179,5 +182,11 @@ describe('kozuyu.json の中身', () => {
     expect(verdicts.every((v) => v === 'ok' || v === 'irreplaceable')).toBe(true)
     const consents = data.sources.map((s) => s.consent)
     expect(consents.every((c) => ['confirmed', 'public_only', 'none'].includes(c))).toBe(true)
+  })
+
+  it('すべての代替食材に豆知識の3項目がある', () => {
+    const trivia = data.parts.flatMap((part) => part.substitutes.map((substitute) => substitute.trivia))
+    expect(trivia.length).toBeGreaterThan(0)
+    expect(trivia.every((item) => item.difference && item.tip && item.caution)).toBe(true)
   })
 })

@@ -6,14 +6,28 @@ import { preloadGranny } from './lib/granny'
 import { InputScreen } from './screens/InputScreen'
 import { JudgingScreen } from './screens/JudgingScreen'
 import { ResultScreen } from './screens/ResultScreen'
+import { RecommendationScreen } from './screens/RecommendationScreen'
+import { EffortScreen } from './screens/EffortScreen'
+import { CookingScreen } from './screens/CookingScreen'
+import { CompletionScreen } from './screens/CompletionScreen'
+import { effortById, type EffortId } from './lib/effort'
 
 const data = kozuyu as KozuyuData
 
-type Screen = 'input' | 'judging' | 'result'
+type Screen =
+  | 'input'
+  | 'ingredientJudging'
+  | 'recommendation'
+  | 'effort'
+  | 'recipeJudging'
+  | 'result'
+  | 'cooking'
+  | 'completion'
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('input')
   const [checked, setChecked] = useState<Set<string>>(() => new Set())
+  const [effort, setEffort] = useState<EffortId>('standard')
   const result = useMemo(() => buildResult(checked, data), [checked])
 
   useEffect(() => {
@@ -34,7 +48,12 @@ export default function App() {
   // 写真で見つかった材料は、いまのチェックに足す（外すのは使う人が手で）
   const addRecognized = (ids: string[]) => setChecked((prev) => new Set([...prev, ...ids]))
 
+  const showRecommendation = useCallback(() => setScreen('recommendation'), [])
   const showResult = useCallback(() => setScreen('result'), [])
+  const restart = () => {
+    setScreen('input')
+    setEffort('standard')
+  }
 
   return (
     <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-kinari shadow-xl md:my-6 md:min-h-[calc(100dvh-3rem)] md:max-w-5xl md:overflow-hidden md:rounded-3xl">
@@ -49,13 +68,43 @@ export default function App() {
           checked={checked}
           onToggle={toggle}
           onRecognized={addRecognized}
-          onSubmit={() => setScreen('judging')}
+          onSubmit={() => setScreen('ingredientJudging')}
         />
       )}
-      {screen === 'judging' && <JudgingScreen line={data.lines.judging} onDone={showResult} />}
-      {screen === 'result' && (
-        <ResultScreen data={data} result={result} onRestart={() => setScreen('input')} />
+      {screen === 'ingredientJudging' && (
+        <JudgingScreen line={data.lines.judging} onDone={showRecommendation} />
       )}
+      {screen === 'recommendation' && (
+        <RecommendationScreen data={data} result={result} onNext={() => setScreen('effort')} />
+      )}
+      {screen === 'effort' && (
+        <EffortScreen
+          initial={effort}
+          onSubmit={(selected) => {
+            setEffort(selected)
+            setScreen('recipeJudging')
+          }}
+        />
+      )}
+      {screen === 'recipeJudging' && <JudgingScreen line={data.lines.recipeJudging} onDone={showResult} />}
+      {screen === 'result' && (
+        <ResultScreen
+          data={data}
+          result={result}
+          effort={effortById(effort)}
+          onStartCooking={() => setScreen('cooking')}
+          onRestart={restart}
+        />
+      )}
+      {screen === 'cooking' && result.template && (
+        <CookingScreen
+          template={result.template}
+          effort={effortById(effort)}
+          tips={data.lines.cookingTips}
+          onComplete={() => setScreen('completion')}
+        />
+      )}
+      {screen === 'completion' && <CompletionScreen data={data} result={result} onRestart={restart} />}
     </div>
   )
 }

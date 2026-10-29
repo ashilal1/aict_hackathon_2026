@@ -25,15 +25,50 @@
       "realId": "kaibashira",
       "essential": true,
       "substitutes": [
-        { "requires": ["hotate_can"], "text": "ホタテ缶（汁ごと）", "verdict": "ok", "closeness": 0.8 },
+        {
+          "requires": ["hotate_can"],
+          "text": "ホタテ缶（汁ごと）",
+          "verdict": "ok",
+          "closeness": 0.8,
+          "trivia": {
+            "difference": "干し貝柱を戻しただしとは、香りやうま味の出方が異なります。",
+            "tip": "缶の汁にもうま味があるため、汁ごと使って味を見ながら調味します。",
+            "caution": "店舗でこの代用を検証したものではありません。現在はチーム試作前の案です。"
+          }
+        },
         {
           "requires": ["dashinomoto", "oyster"],
           "text": "だしの素＋オイスターソース少々",
           "verdict": "ok",
-          "closeness": 0.6
+          "closeness": 0.6,
+          "trivia": {
+            "difference": "貝柱のだしとは風味が異なり、オイスターソースを足しても同じ味にはなりません。",
+            "tip": "オイスターソースは少量から加え、味を濃くしすぎないようにします。",
+            "caution": "店舗でも試した経験がない代用案のため、こづゆを再現できるとは断定していません。"
+          }
         },
-        { "requires": ["dashinomoto"], "text": "だしの素", "verdict": "irreplaceable", "closeness": 0.35 },
-        { "requires": ["shirodashi"], "text": "白だし", "verdict": "irreplaceable", "closeness": 0.3 }
+        {
+          "requires": ["dashinomoto"],
+          "text": "だしの素",
+          "verdict": "irreplaceable",
+          "closeness": 0.35,
+          "trivia": {
+            "difference": "手軽にうま味を加えられますが、干し貝柱の香りや奥行きは補いきれません。",
+            "tip": "最初は薄めに作り、具材を煮てから味を調えます。",
+            "caution": "おいしい汁物にはできますが、本来のこづゆとは違う味になる可能性があります。"
+          }
+        },
+        {
+          "requires": ["shirodashi"],
+          "text": "白だし",
+          "verdict": "irreplaceable",
+          "closeness": 0.3,
+          "trivia": {
+            "difference": "味付けをまとめやすい一方、干し貝柱を中心に重ねただしとは風味が異なります。",
+            "tip": "商品ごとに塩分が違うため、表示より薄めから試します。",
+            "caution": "白だしだけで本来のこづゆになる、という意味ではありません。"
+          }
+        }
       ],
       "note": "干し貝柱は北海道・青森の産。会津も昔から外から買ってきた乾物",
       "weight": 35,
@@ -45,7 +80,19 @@
       "original": "干し椎茸",
       "realId": "hoshishiitake",
       "essential": false,
-      "substitutes": [{ "requires": ["shiitake"], "text": "生しいたけ", "verdict": "ok", "closeness": 0.6 }],
+      "substitutes": [
+        {
+          "requires": ["shiitake"],
+          "text": "生しいたけ",
+          "verdict": "ok",
+          "closeness": 0.6,
+          "trivia": {
+            "difference": "干し椎茸の戻し汁が持つ凝縮した香りは、生しいたけでは弱くなります。",
+            "tip": "薄く切って、だしに香りが移るように煮ます。",
+            "caution": "食感と香りは変わるため、同じ仕上がりにはなりません。"
+          }
+        }
+      ],
       "weight": 10,
       "aizu": []
     },
@@ -56,7 +103,17 @@
       "realId": "mamefu",
       "essential": true,
       "substitutes": [
-        { "requires": ["fu"], "text": "お麩（小さくちぎる）", "verdict": "irreplaceable", "closeness": 0.4 }
+        {
+          "requires": ["fu"],
+          "text": "お麩（小さくちぎる）",
+          "verdict": "irreplaceable",
+          "closeness": 0.4,
+          "trivia": {
+            "difference": "豆麩特有の小さな形や、汁を含んだときの食感とは異なります。",
+            "tip": "大きなお麩は小さくして、煮崩れないよう仕上げに近い段階で加えます。",
+            "caution": "豆腐や油揚げなども候補に挙がりましたが、店舗で代用を検証した結果ではありません。"
+          }
+        }
       ],
       "weight": 20,
       "aizu": ["mamefu_maker"]
@@ -67,7 +124,19 @@
       "original": "里芋",
       "realId": "satoimo",
       "essential": false,
-      "substitutes": [{ "requires": ["jagaimo"], "text": "じゃがいも", "verdict": "ok", "closeness": 0.6 }],
+      "substitutes": [
+        {
+          "requires": ["jagaimo"],
+          "text": "じゃがいも",
+          "verdict": "ok",
+          "closeness": 0.6,
+          "trivia": {
+            "difference": "里芋のねっとりした食感とは異なり、煮崩れ方や汁へのとろみも変わります。",
+            "tip": "小さく切り、煮崩れすぎないよう火の通りを途中で確認します。",
+            "caution": "身近な代用候補ですが、店舗で実際に試した結果ではありません。"
+          }
+        }
+      ],
       "weight": 12,
       "aizu": []
     },
@@ -206,7 +275,14 @@
   "lines": {
     "greeting": "家にあるもの、チェックしてけろ",
     "judging": "どれどれ…",
+    "recipeJudging": "今日の作り方を考えっからな…",
     "noTemplate": "だしになるもんが無えな。これだけは用意してけろ",
+    "completion": "よぐ作ったな。まずは一杯、味わってみっせ",
+    "cookingTips": [
+      "こづゆで特に大切なのはだし。干し貝柱・昆布・干し椎茸を一晩水に浸して取る作り方があります。",
+      "こづゆはお正月やお盆、お祝い事、仏事など、特別な場面で食べられてきた料理です。",
+      "小さなお椀には、おかわりを重ねて楽しむ文化が表れています。"
+    ],
     "score": [
       { "min": 90, "text": "ほとんど本物だ。会津の台所の味がすっぞ" },
       { "min": 70, "text": "よぐできた。あとは会津の本物で仕上げてけろ" },

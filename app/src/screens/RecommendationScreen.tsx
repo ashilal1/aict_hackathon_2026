@@ -4,6 +4,7 @@ import type { Result, Row } from '../lib/buildResult'
 import { Bubble, Card, DraftNote, GrannyFace, VerdictTag } from '../components/parts'
 import { ScoreCard } from '../components/ScoreCard'
 import { TriviaModal } from '../components/TriviaModal'
+import { PhotoReader } from '../components/PhotoReader'
 
 const SECTIONS: { id: Part['section']; label: string }[] = [
   { id: 'dashi', label: 'だし' },
@@ -13,10 +14,12 @@ const SECTIONS: { id: Part['section']; label: string }[] = [
 type Props = {
   data: KozuyuData
   result: Result
+  onRecognized: (ids: string[]) => void
   onNext: () => void
+  onEditInput: () => void
 }
 
-export function RecommendationScreen({ data, result, onNext }: Props) {
+export function RecommendationScreen({ data, result, onRecognized, onNext, onEditInput }: Props) {
   const [selectedRow, setSelectedRow] = useState<Row | null>(null)
   const closeModal = useCallback(() => setSelectedRow(null), [])
 
@@ -72,6 +75,8 @@ export function RecommendationScreen({ data, result, onNext }: Props) {
         ))}
       </Card>
 
+      <PhotoReader pantry={data.pantry} onRecognized={onRecognized} mode="add" />
+
       {data.draft && <DraftNote />}
 
       <button
@@ -80,6 +85,13 @@ export function RecommendationScreen({ data, result, onNext }: Props) {
         className="w-full rounded-full bg-shu py-4 text-lg font-bold text-white shadow-lg"
       >
         作り方の手軽さを選ぶ
+      </button>
+      <button
+        type="button"
+        onClick={onEditInput}
+        className="w-full rounded-full border-2 border-ai py-3 font-bold text-ai"
+      >
+        材料を選び直す
       </button>
 
       {selectedRow && <TriviaModal row={selectedRow} onClose={closeModal} />}

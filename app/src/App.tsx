@@ -75,7 +75,13 @@ export default function App() {
         <JudgingScreen line={data.lines.judging} onDone={showRecommendation} />
       )}
       {screen === 'recommendation' && (
-        <RecommendationScreen data={data} result={result} onNext={() => setScreen('effort')} />
+        <RecommendationScreen
+          data={data}
+          result={result}
+          onRecognized={addRecognized}
+          onNext={() => setScreen('effort')}
+          onEditInput={() => setScreen('input')}
+        />
       )}
       {screen === 'effort' && (
         <EffortScreen

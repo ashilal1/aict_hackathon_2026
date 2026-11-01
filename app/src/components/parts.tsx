@@ -1,6 +1,5 @@
 import type { ReactNode } from 'react'
 import { GRANNY_FRONT } from '../lib/granny'
-import type { RowVerdict } from '../lib/buildResult'
 
 // 正面の全身画像から顔のまわりだけを丸く切り抜く
 export function GrannyFace({ size = 64 }: { size?: number }) {
@@ -47,63 +46,28 @@ export function Card({
   )
 }
 
-const TAG: Record<RowVerdict, { label: string; className: string }> = {
-  real: { label: '本物', className: 'bg-kincha text-white' },
-  ok: { label: '代用OK', className: 'bg-ai text-white' },
-  irreplaceable: { label: '代わりがきかない', className: 'bg-shu text-white' },
-  omit: { label: '省略', className: 'bg-sand text-sumi' },
-}
-
-export function VerdictTag({ verdict }: { verdict: RowVerdict }) {
-  const tag = TAG[verdict]
+export function StepHeader({ step, title }: { step: number; title: string }) {
   return (
-    <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold whitespace-nowrap ${tag.className}`}>
-      {tag.label}
-    </span>
+    <div className="text-center">
+      <p className="text-sm font-bold text-shu">STEP {step} / 4</p>
+      <h1 className="mt-1 text-2xl font-bold">{title}</h1>
+      <div className="mx-auto mt-3 flex max-w-40 gap-2" aria-hidden>
+        {[1, 2, 3, 4].map((number) => (
+          <span
+            key={number}
+            className={`h-1.5 flex-1 rounded-full ${number <= step ? 'bg-shu' : 'bg-stone-200'}`}
+          />
+        ))}
+      </div>
+    </div>
   )
 }
 
-export function DraftNote({ children }: { children?: ReactNode }) {
+export function DraftNote() {
   return (
     <p className="rounded-lg border border-dashed border-kincha bg-kinari px-3 py-2 text-xs leading-relaxed text-sumi">
-      <span className="mr-1 rounded bg-kincha-dark px-1.5 py-0.5 font-bold text-white">仮</span>
-      {children ?? 'いまの分量・手順・判定は、チームの試作前の仮の値です'}
+      <span className="mr-1 rounded bg-kincha px-1.5 py-0.5 font-bold text-white">仮</span>
+      いまの分量・手順は、チームの試作前の仮の値です
     </p>
-  )
-}
-
-const STEPS = ['材料', '判定', '作り方']
-
-// 材料 → 判定 → 作り方 のどこにいるか。済んだところには ✓ を付ける
-export function Stepper({ current }: { current: 1 | 2 | 3 }) {
-  return (
-    <ol
-      aria-label="進み具合"
-      className="flex items-center gap-1.5 text-xs font-bold text-sumi md:mx-auto md:w-full md:max-w-md"
-    >
-      {STEPS.map((label, i) => {
-        const step = i + 1
-        const done = step < current
-        const here = step === current
-        return (
-          <li key={label} className="contents">
-            {i > 0 && <span aria-hidden className={`h-0.5 flex-1 ${done || here ? 'bg-ai' : 'bg-line'}`} />}
-            <span
-              aria-current={here ? 'step' : undefined}
-              className={`flex items-center gap-1.5 ${here ? 'text-shu' : done ? 'text-ai' : ''}`}
-            >
-              <span
-                className={`inline-flex h-[22px] w-[22px] items-center justify-center rounded-full ${
-                  here ? 'bg-shu text-white' : done ? 'bg-ai text-white' : 'border-2 border-line bg-white'
-                }`}
-              >
-                {done ? '✓' : step}
-              </span>
-              {here && step === 2 ? '判定の結果' : label}
-            </span>
-          </li>
-        )
-      })}
-    </ol>
   )
 }

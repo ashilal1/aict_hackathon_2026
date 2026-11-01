@@ -12,8 +12,6 @@ export type Row = {
   text: string
   verdict: RowVerdict
   note?: string
-  // この行に使った、チェック済みの材料（pantry の id）。行を消すときは、これを外す
-  usedIds: string[]
   trivia?: Part['substitutes'][number]['trivia']
 }
 
@@ -53,7 +51,7 @@ function buildRow(part: Part, checked: Set<string>): Row {
     note: part.note,
   }
   if (checked.has(part.realId)) {
-    return { ...base, text: part.original, verdict: 'real', usedIds: [part.realId] }
+    return { ...base, text: part.original, verdict: 'real' }
   }
   const sub = part.substitutes.find((s) => s.requires.every((id) => checked.has(id)))
   if (sub) {
@@ -61,13 +59,12 @@ function buildRow(part: Part, checked: Set<string>): Row {
       ...base,
       text: sub.text,
       verdict: sub.verdict,
-      usedIds: sub.requires,
       trivia: sub.trivia,
     }
   }
   return part.essential
-    ? { ...base, text: '代わりなし', verdict: 'irreplaceable', usedIds: [] }
-    : { ...base, text: 'なくても作れる', verdict: 'omit', usedIds: [] }
+    ? { ...base, text: '代わりなし', verdict: 'irreplaceable' }
+    : { ...base, text: 'なくても作れる', verdict: 'omit' }
 }
 
 const GENERIC_LABEL: Record<Source['kind'], string> = {

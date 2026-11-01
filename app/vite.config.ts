@@ -39,7 +39,7 @@ function devApi(): Plugin {
 export default defineConfig({
   plugins: [react(), tailwindcss(), devApi()],
   server: {
-    // ばあちゃんの 360° 画像はリポジトリ直下の images/ から読み込む（app/ にコピーしない）
+    // ばあちゃんの正面画像はリポジトリ直下の images/ から読み込む（app/ にコピーしない）
     fs: { allow: ['..'] },
   },
   test: {

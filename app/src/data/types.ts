@@ -8,6 +8,15 @@ export type PantryItem = {
   group: PantryGroup
 }
 
+export type Enhancement = {
+  id: string
+  pantryId: string
+  title: string
+  reason: string
+  feature: string
+  preparation: string
+}
+
 // 代用がどこまで足りるか。食べ比べが済むまでは仮の判定
 export type Verdict = 'ok' | 'irreplaceable'
 
@@ -60,38 +69,25 @@ export type Source = {
   checked_at: string | null
 }
 
-// 作った人が食べて ⚪︎／❌ を付ける項目。中身はチームで決める（docs/open-questions.md 2 章）
-export type EvaluationAspect = {
-  id: string
-  label: string
-  items: { id: string; text: string }[]
-}
-
 export type KozuyuData = {
   dish: string
   // true のあいだは、分量・判定が試作前の仮の値であることを画面に出す
   draft: boolean
-  // アプリを開いて最初に出す紹介
-  intro: {
-    greeting: string
-    ingredients: { label: string; fact: string }[]
-    words: { word: string; meaning: string }[]
-  }
   pantry: PantryItem[]
+  enhancements: Enhancement[]
   parts: Part[]
   templates: Template[]
   sources: Source[]
   lines: {
-    greeting: string
-    recommendation: string
-    judging: string
-    recipeJudging: string
-    noTemplate: string
-    completion: string
-    evaluation: string
-    cookingTips: string[]
-  }
-  evaluation: {
-    aspects: EvaluationAspect[]
+    aizuHeritage: string
+    aizuExperience: string
+    extraAmountNote: string
+    styleSummary: {
+      easy: string
+      easyWithKaibashira: string
+      authentic: string
+      authenticWithoutKaibashira: string
+      custom: string
+    }
   }
 }

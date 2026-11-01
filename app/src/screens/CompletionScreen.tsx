@@ -1,25 +1,9 @@
 import { useState } from 'react'
 import type { KozuyuData } from '../data/types'
 import type { Result } from '../lib/buildResult'
-import { Bubble, Card, GrannyFace } from '../components/parts'
+import { Bubble, Card, GrannyFace, StepHeader } from '../components/parts'
 
-type Props = { data: KozuyuData; result: Result; onEvaluate: () => void; onRestart: () => void }
-
-// 会津の赤べこ（飾り）
-function Akabeko() {
-  return (
-    <svg width="44" height="44" viewBox="0 0 40 40" aria-hidden>
-      <rect x="6" y="18" width="24" height="13" rx="6" fill="#c0392b" />
-      <circle cx="30" cy="14" r="8" fill="#c0392b" />
-      <circle cx="13" cy="23" r="3" fill="#fff" />
-      <circle cx="22" cy="27" r="2.4" fill="#fff" />
-      <path d="M27 7 L24 2 L29 6Z" fill="#f5efe3" />
-      <circle cx="34" cy="14" r="1.4" fill="#1f2a44" />
-      <rect x="8" y="30" width="3" height="7" fill="#1f2a44" />
-      <rect x="25" y="30" width="3" height="7" fill="#1f2a44" />
-    </svg>
-  )
-}
+type Props = { data: KozuyuData; result: Result; onRestart: () => void }
 
 async function copyText(text: string) {
   try {
@@ -36,55 +20,35 @@ async function copyText(text: string) {
   }
 }
 
-export function CompletionScreen({ data, result, onEvaluate, onRestart }: Props) {
+export function CompletionScreen({ data, result, onRestart }: Props) {
   const [copied, setCopied] = useState(false)
   const onCopy = async () => {
     if (result.memo && (await copyText(result.memo))) setCopied(true)
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 pt-3 pb-8 md:mx-auto md:w-full md:max-w-xl md:pt-6">
-      <div className="flex items-center gap-3 md:justify-center">
-        <GrannyFace size={64} />
-        <Bubble>{data.lines.completion}</Bubble>
-      </div>
-      <div className="pt-2 text-center">
-        <svg
-          width="56"
-          height="56"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#c0392b"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          aria-hidden
-          className="mx-auto"
-        >
-          <circle cx="12" cy="12" r="10" />
-          <path d="M7.5 12.5l3 3 6-6.5" />
-        </svg>
-        <div className="mt-2 flex items-center justify-center gap-2.5">
-          <h1 className="text-[26px] font-bold">こづゆ、できあがり！</h1>
-          <Akabeko />
-        </div>
-        <p className="mt-1.5 text-sm text-sumi">まず作ってみたことが、本場を知る最初の一歩です。</p>
+    <div className="flex flex-1 flex-col gap-5 px-4 pt-5 pb-8 md:px-10 md:pt-8">
+      <StepHeader step={4} title="本場のこづゆも食べてみよう" />
+      <div className="flex items-center gap-4 md:justify-center">
+        <GrannyFace size={72} />
+        <Bubble>家で作った一杯の次は、会津の一杯も味わってみてけろ</Bubble>
       </div>
 
-      <button
-        type="button"
-        onClick={onEvaluate}
-        className="min-h-14 w-full rounded-full bg-shu text-[17px] font-bold text-white shadow-lg"
-      >
-        食べたら、どうだったか付ける
-      </button>
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card title="受け継がれてきた一杯">
+          <p className="leading-relaxed text-sumi">{data.lines.aizuHeritage}</p>
+        </Card>
+        <Card title="本場で味わう楽しさ">
+          <p className="leading-relaxed text-sumi">{data.lines.aizuExperience}</p>
+        </Card>
+      </div>
 
       {result.aizu.length > 0 && (
-        <Card title="もっと本場に近づけるなら">
+        <Card title="会津の材料を知る">
           <ul className="space-y-3">
             {result.aizu.map((item) => (
               <li key={item.original} className="rounded-xl bg-kinari p-3">
-                <p className="font-bold">{item.original}</p>
+                <p className="text-lg font-bold">{item.original}</p>
                 {item.sources.length === 0 ? (
                   <p className="text-sm text-sumi">会津で買える場所は確認中です</p>
                 ) : (
@@ -110,18 +74,18 @@ export function CompletionScreen({ data, result, onEvaluate, onRestart }: Props)
         <button
           type="button"
           onClick={onCopy}
-          className="min-h-14 w-full rounded-full bg-ai text-[17px] font-bold text-white shadow-lg"
+          className="min-h-12 w-full rounded-full bg-ai py-4 text-lg font-bold text-white shadow-lg focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-kincha/50"
         >
           {copied ? '買い物メモをコピーしました' : '会津で買うものをメモする'}
         </button>
       )}
-      <p className="text-center text-lg font-bold">代用でここまで。残りは、会津で。</p>
+      <p className="text-center text-xl font-bold">自分の一杯から、会津の一杯へ。</p>
       <button
         type="button"
         onClick={onRestart}
-        className="min-h-12 w-full rounded-full border-2 border-ai font-bold"
+        className="min-h-11 w-full rounded-full border-2 border-ai py-3 font-bold text-ai focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-kincha/50"
       >
-        もう一度作る
+        別の作り方も試す
       </button>
     </div>
   )

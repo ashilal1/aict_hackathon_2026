@@ -89,17 +89,6 @@ describe('会津から買うなら', () => {
   })
 })
 
-describe('行を消すときに外す材料', () => {
-  it('本物なら本物の材料、代わりならその代わりに使った材料', () => {
-    expect(rowOf(['kaibashira', 'dashinomoto'], 'kaibashira').usedIds).toEqual(['kaibashira'])
-    expect(rowOf(['dashinomoto', 'oyster'], 'kaibashira').usedIds).toEqual(['dashinomoto', 'oyster'])
-  })
-
-  it('本物も代わりも無ければ、外す材料は無い', () => {
-    expect(rowOf([], 'mamefu').usedIds).toEqual([])
-  })
-})
-
 // チームが kozuyu.json を書き換えたときに、つづりの間違いで画面が壊れないようにする
 describe('kozuyu.json の中身', () => {
   const pantryIds = new Set(data.pantry.map((p) => p.id))
@@ -118,15 +107,14 @@ describe('kozuyu.json の中身', () => {
     expect(ids.filter((id) => !sourceIds.has(id))).toEqual([])
   })
 
-  it('紹介の材料と言葉は、どれも説明がある', () => {
-    expect(data.intro.ingredients.every((item) => item.label && item.fact)).toBe(true)
-    expect(data.intro.words.every((item) => item.word && item.meaning)).toBe(true)
-  })
-
-  it('評価の項目は 1 つ以上あり、id が重ならない', () => {
-    const ids = data.evaluation.aspects.flatMap((aspect) => aspect.items.map((item) => item.id))
-    expect(ids.length).toBeGreaterThan(0)
-    expect(new Set(ids).size).toBe(ids.length)
+  it('追加提案は pantry を参照し、理由・特徴・下処理がそろっている', () => {
+    expect(data.enhancements.map((item) => item.pantryId).sort()).toEqual(
+      ['hoshishiitake', 'kaibashira', 'mamefu', 'satoimo'].sort(),
+    )
+    expect(new Set(data.enhancements.map((item) => item.id)).size).toBe(data.enhancements.length)
+    expect(data.enhancements.every((item) => pantryIds.has(item.pantryId))).toBe(true)
+    expect(data.enhancements.every((item) => item.reason && item.feature && item.preparation)).toBe(true)
+    expect(data.lines.extraAmountNote).toContain('分量')
   })
 
   it('verdict と consent は決めた値だけ', () => {

@@ -51,23 +51,59 @@ const TAG: Record<RowVerdict, { label: string; className: string }> = {
   real: { label: '本物', className: 'bg-kincha text-white' },
   ok: { label: '代用OK', className: 'bg-ai text-white' },
   irreplaceable: { label: '代わりがきかない', className: 'bg-shu text-white' },
-  omit: { label: '省略', className: 'bg-stone-200 text-sumi' },
+  omit: { label: '省略', className: 'bg-sand text-sumi' },
 }
 
 export function VerdictTag({ verdict }: { verdict: RowVerdict }) {
   const tag = TAG[verdict]
   return (
-    <span className={`shrink-0 rounded-md px-2 py-0.5 text-xs font-bold whitespace-nowrap ${tag.className}`}>
+    <span className={`shrink-0 rounded-md px-2 py-1 text-xs font-bold whitespace-nowrap ${tag.className}`}>
       {tag.label}
     </span>
   )
 }
 
-export function DraftNote() {
+export function DraftNote({ children }: { children?: ReactNode }) {
   return (
     <p className="rounded-lg border border-dashed border-kincha bg-kinari px-3 py-2 text-xs leading-relaxed text-sumi">
-      <span className="mr-1 rounded bg-kincha px-1.5 py-0.5 font-bold text-white">仮</span>
-      いまの分量・手順・判定は、チームの試作前の仮の値です
+      <span className="mr-1 rounded bg-kincha-dark px-1.5 py-0.5 font-bold text-white">仮</span>
+      {children ?? 'いまの分量・手順・判定は、チームの試作前の仮の値です'}
     </p>
+  )
+}
+
+const STEPS = ['材料', '判定', '作り方']
+
+// 材料 → 判定 → 作り方 のどこにいるか。済んだところには ✓ を付ける
+export function Stepper({ current }: { current: 1 | 2 | 3 }) {
+  return (
+    <ol
+      aria-label="進み具合"
+      className="flex items-center gap-1.5 text-xs font-bold text-sumi md:mx-auto md:w-full md:max-w-md"
+    >
+      {STEPS.map((label, i) => {
+        const step = i + 1
+        const done = step < current
+        const here = step === current
+        return (
+          <li key={label} className="contents">
+            {i > 0 && <span aria-hidden className={`h-0.5 flex-1 ${done || here ? 'bg-ai' : 'bg-line'}`} />}
+            <span
+              aria-current={here ? 'step' : undefined}
+              className={`flex items-center gap-1.5 ${here ? 'text-shu' : done ? 'text-ai' : ''}`}
+            >
+              <span
+                className={`inline-flex h-[22px] w-[22px] items-center justify-center rounded-full ${
+                  here ? 'bg-shu text-white' : done ? 'bg-ai text-white' : 'border-2 border-line bg-white'
+                }`}
+              >
+                {done ? '✓' : step}
+              </span>
+              {here && step === 2 ? '判定の結果' : label}
+            </span>
+          </li>
+        )
+      })}
+    </ol>
   )
 }

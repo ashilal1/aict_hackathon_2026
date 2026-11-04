@@ -9,13 +9,35 @@ type Status =
   | { kind: 'done'; labels: string[] }
   | { kind: 'error'; message: string }
 
+// input: 材料入力の画面。add: 結果を見たあとに、足りない材料を撮り足す
+type Mode = 'input' | 'add'
+
+const COPY: Record<Mode, { title: string; lead: string; button: string; found: string; none: string }> = {
+  input: {
+    title: '写真で読みとる',
+    lead: '冷蔵庫や棚、買ってきた袋を撮ると、ばあちゃんが材料を見分けるよ',
+    button: '写真を撮る・えらぶ',
+    found: 'が見つかったよ。違ったら下で直してけろ',
+    none: 'これというものが見つからんかった。下で手でチェックしてけろ',
+  },
+  add: {
+    title: '材料を撮り足す',
+    lead: '撮り忘れた材料があったら、もう一度撮ってけろ。見つかった材料は上の一覧に足すよ',
+    button: 'もう一度撮る・えらぶ',
+    found: 'を足したよ。上の一覧を見てけろ',
+    none: 'これというものが見つからんかった。手で直すときは「材料を選び直す」から',
+  },
+}
+
 type Props = {
   pantry: PantryItem[]
   onRecognized: (ids: string[]) => void
+  mode?: Mode
 }
 
-// 写真を撮る（えらぶ）と、写っている材料を AI が見分けて、下のチェック一覧に印を付ける
-export function PhotoReader({ pantry, onRecognized }: Props) {
+// 写真を撮る（えらぶ）と、写っている材料を AI が見分けて、チェック一覧に印を付ける
+export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
+  const copy = COPY[mode]
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [previews, setPreviews] = useState<string[]>([])
 
@@ -38,10 +60,9 @@ export function PhotoReader({ pantry, onRecognized }: Props) {
   }
 
   return (
-    <Card title="写真で読みとる">
+    <Card title={copy.title}>
       <p className="mb-3 text-sm leading-relaxed text-sumi">
-        冷蔵庫や棚、買ってきた袋を撮ると、ばあちゃんが材料を見分けるよ（{MAX_PHOTOS}{' '}
-        枚まで）。写真は保存しません。
+        {copy.lead}（{MAX_PHOTOS} 枚まで）。写真は保存しません。
       </p>
 
       <label
@@ -49,7 +70,7 @@ export function PhotoReader({ pantry, onRecognized }: Props) {
           status.kind === 'reading' ? 'pointer-events-none opacity-50' : 'active:bg-stone-100'
         }`}
       >
-        {status.kind === 'reading' ? 'ばあちゃんが写真を見とる…' : '写真を撮る・えらぶ'}
+        {status.kind === 'reading' ? 'ばあちゃんが写真を見とる…' : copy.button}
         <input
           type="file"
           accept="image/*"
@@ -74,10 +95,10 @@ export function PhotoReader({ pantry, onRecognized }: Props) {
           {status.labels.length > 0 ? (
             <>
               <span className="font-bold">{status.labels.join('・')}</span>
-              が見つかったよ。違ったら下で直してけろ
+              {copy.found}
             </>
           ) : (
-            'これというものが見つからんかった。下で手でチェックしてけろ'
+            copy.none
           )}
         </p>
       )}

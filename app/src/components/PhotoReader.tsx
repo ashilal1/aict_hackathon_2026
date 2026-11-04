@@ -1,7 +1,6 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
 import type { PantryItem } from '../data/types'
 import { MAX_PHOTOS, recognizePhotos } from '../lib/photo'
-import { Card } from './parts'
 
 type Status =
   | { kind: 'idle' }
@@ -12,20 +11,18 @@ type Status =
 // input: 材料入力の画面。add: 結果を見たあとに、足りない材料を撮り足す
 type Mode = 'input' | 'add'
 
-const COPY: Record<Mode, { title: string; lead: string; button: string; found: string; none: string }> = {
+const COPY: Record<Mode, { button: string; lead: string; found: string; none: string }> = {
   input: {
-    title: '写真で読みとる',
-    lead: '冷蔵庫や棚、買ってきた袋を撮ると、ばあちゃんが材料を見分けるよ',
-    button: '写真を撮る・えらぶ',
-    found: 'が見つかったよ。違ったら下で直してけろ',
-    none: 'これというものが見つからんかった。下で手でチェックしてけろ',
+    button: '写真で材料を撮る',
+    lead: '撮った写真から、食材を自動で見つけます',
+    found: 'が見つかったよ。違ったら下で直してけさい',
+    none: 'これというものが見つからんかった。下の「＋ 材料を足す」から選んでけさい',
   },
   add: {
-    title: '材料を撮り足す',
-    lead: '撮り忘れた材料があったら、もう一度撮ってけろ。見つかった材料は上の一覧に足すよ',
-    button: 'もう一度撮る・えらぶ',
-    found: 'を足したよ。上の一覧を見てけろ',
-    none: 'これというものが見つからんかった。手で直すときは「材料を選び直す」から',
+    button: '写真でもう一度撮る',
+    lead: '撮り忘れた材料があったら、もう一度撮ってけさい',
+    found: 'を足したよ。下の一覧を見てけさい',
+    none: 'これというものが見つからんかった。下の「材料を足す」から選んでけさい',
   },
 }
 
@@ -59,18 +56,45 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
     }
   }
 
-  return (
-    <Card title={copy.title}>
-      <p className="mb-3 text-sm leading-relaxed text-sumi">
-        {copy.lead}（{MAX_PHOTOS} 枚まで）。写真は保存しません。
-      </p>
+  const reading = status.kind === 'reading'
 
+  return (
+    <div>
       <label
-        className={`flex w-full cursor-pointer items-center justify-center rounded-full border-2 border-ai py-3 font-bold text-ai md:mx-auto md:max-w-md ${
-          status.kind === 'reading' ? 'pointer-events-none opacity-50' : 'active:bg-stone-100'
-        }`}
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed border-kincha bg-[#fffdf7] text-left md:mx-auto md:max-w-md ${
+          mode === 'input' ? 'min-h-16 px-3.5 py-2.5' : 'min-h-11 justify-center rounded-xl px-3 py-2'
+        } ${reading ? 'pointer-events-none opacity-50' : 'active:bg-stone-100'}`}
       >
-        {status.kind === 'reading' ? 'ばあちゃんが写真を見とる…' : copy.button}
+        {mode === 'input' && (
+          <span
+            aria-hidden
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ai"
+          >
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#fff"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M4 8h3l2-3h6l2 3h3v11H4z" />
+              <circle cx="12" cy="13" r="3.5" />
+            </svg>
+          </span>
+        )}
+        <span className="flex flex-col gap-0.5">
+          <span className={`font-bold ${mode === 'input' ? 'text-[15px]' : 'text-sm'}`}>
+            {reading ? 'ばあちゃんが写真を見とる…' : copy.button}
+          </span>
+          {mode === 'input' && (
+            <span className="text-xs text-sumi">
+              {copy.lead}（{MAX_PHOTOS} 枚まで・写真は保存しません）
+            </span>
+          )}
+        </span>
         <input
           type="file"
           accept="image/*"
@@ -78,9 +102,12 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
           multiple
           className="sr-only"
           onChange={onChange}
-          disabled={status.kind === 'reading'}
+          disabled={reading}
         />
       </label>
+      {mode === 'add' && (
+        <p className="mt-1.5 text-center text-xs text-sumi">{copy.lead}（写真は保存しません）</p>
+      )}
 
       {previews.length > 0 && (
         <div className="mt-3 flex justify-center gap-2">
@@ -107,6 +134,6 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
           {status.message}
         </p>
       )}
-    </Card>
+    </div>
   )
 }

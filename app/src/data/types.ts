@@ -15,8 +15,6 @@ export type Substitute = {
   requires: string[]
   text: string
   verdict: Verdict
-  // 本物を 1 としたときの近さ（0〜1）。食べ比べが済むまでは仮の値
-  closeness: number
   // 代替食材を選んだ理由と違い。確認済みの範囲だけをモーダルに表示する
   trivia: {
     difference: string
@@ -36,8 +34,6 @@ export type Part = {
   // 上から順に見て、requires がそろう最初のものを使う
   substitutes: Substitute[]
   note?: string
-  // 「本物との近さ」100 点のうち、この材料が占める配点。全部の材料で合わせて 100 にする
-  weight: number
   // 会津から買うなら（sources の id）
   aizu: string[]
 }
@@ -50,17 +46,6 @@ export type Template = {
   time: string
   amounts: { item: string; qty: string }[]
   steps: string[]
-  // 食べ比べで測った「本物との近さ」。測るまでは null（画面には見込みの点数を出す）
-  tasting: Tasting | null
-}
-
-export type Tasting = {
-  // 0〜100 の整数。DfC なら 100 −（違いの平均 × 10）に直してから入れる
-  score: number
-  people: number
-  date: string
-  // 食べ比べた鍋に使った材料（pantry の id）。同じ材料がそろったときだけ、この点数を出す
-  ingredients: string[]
 }
 
 export type Consent = 'confirmed' | 'public_only' | 'none'
@@ -75,22 +60,38 @@ export type Source = {
   checked_at: string | null
 }
 
+// 作った人が食べて ⚪︎／❌ を付ける項目。中身はチームで決める（docs/open-questions.md 2 章）
+export type EvaluationAspect = {
+  id: string
+  label: string
+  items: { id: string; text: string }[]
+}
+
 export type KozuyuData = {
   dish: string
   // true のあいだは、分量・判定が試作前の仮の値であることを画面に出す
   draft: boolean
+  // アプリを開いて最初に出す紹介
+  intro: {
+    greeting: string
+    ingredients: { label: string; fact: string }[]
+    words: { word: string; meaning: string }[]
+  }
   pantry: PantryItem[]
   parts: Part[]
   templates: Template[]
   sources: Source[]
   lines: {
     greeting: string
+    recommendation: string
     judging: string
     recipeJudging: string
     noTemplate: string
     completion: string
+    evaluation: string
     cookingTips: string[]
-    // 点数ごとのばあちゃんの一言。min 点以上で、上から最初に当てはまるものを使う
-    score: { min: number; text: string }[]
+  }
+  evaluation: {
+    aspects: EvaluationAspect[]
   }
 }

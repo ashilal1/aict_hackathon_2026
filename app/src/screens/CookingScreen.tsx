@@ -6,14 +6,15 @@ import { BekoProgress, Bubble, Card, GrannyFigure } from '../components/parts'
 type Props = {
   template: Template
   checked: Set<string>
+  extras: Set<string>
   effort: EffortLevel
   tips: string[]
   onComplete: () => void
 }
 
-export function CookingScreen({ template, checked, effort, tips, onComplete }: Props) {
+export function CookingScreen({ template, checked, extras, effort, tips, onComplete }: Props) {
   const [step, setStep] = useState(0)
-  const steps = cookingStepsFor(withPreparation(template.steps, checked), effort)
+  const steps = cookingStepsFor(withPreparation(template.steps, checked, extras), effort)
   const currentTip = tips[step % tips.length]
   const isLast = step === steps.length - 1
 

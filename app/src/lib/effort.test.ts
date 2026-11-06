@@ -46,4 +46,16 @@ describe('材料ごとの下ごしらえ', () => {
   it('里芋も麩もなければ、手順は変えない', () => {
     expect(withPreparation(steps, new Set(['ninjin']))).toEqual(steps)
   })
+
+  it('自分で足す食材は、具を扱う手順の前に一言添える', () => {
+    const recipe = ['水を入れる', '具を小さく切る', '煮る']
+    const result = withPreparation(recipe, new Set(), ['大根', '卵'])
+    expect(result).toHaveLength(4)
+    expect(result[1]).toContain('自分で足す大根・卵も')
+    expect(result[2]).toBe('具を小さく切る')
+  })
+
+  it('具の手順が無ければ、最初に添える', () => {
+    expect(withPreparation(['煮る'], new Set(), ['大根'])[0]).toContain('自分で足す大根も')
+  })
 })

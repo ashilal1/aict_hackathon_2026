@@ -109,6 +109,7 @@ export default function App() {
         <ResultScreen
           data={data}
           result={result}
+          checked={checked}
           effort={effort}
           onStartCooking={() => setScreen('cooking')}
           onRestart={() => setScreen('input')}
@@ -117,6 +118,7 @@ export default function App() {
       {screen === 'cooking' && result.template && (
         <CookingScreen
           template={result.template}
+          checked={checked}
           effort={effort}
           tips={data.lines.cookingTips}
           onComplete={() => setScreen('completion')}

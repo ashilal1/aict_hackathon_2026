@@ -134,6 +134,7 @@ describe('kozuyu.json の中身', () => {
   })
 
   it('評価の項目は 1 つ以上あり、id が重ならない', () => {
+    expect(data.evaluation.aspects.flatMap((aspect) => aspect.items).every((item) => item.note)).toBe(true)
     const ids = data.evaluation.aspects.flatMap((aspect) => aspect.items.map((item) => item.id))
     expect(ids.length).toBeGreaterThan(0)
     expect(new Set(ids).size).toBe(ids.length)

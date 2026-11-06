@@ -8,6 +8,12 @@ export type PantryItem = {
   group: PantryGroup
 }
 
+// 写真に写っていた食材。pantryId があれば、こづゆの材料として使える
+export type RecognizedFood = {
+  name: string
+  pantryId: string | null
+}
+
 // 判定の結果に出す、任意のひと手間
 export type Enhancement = {
   id: string

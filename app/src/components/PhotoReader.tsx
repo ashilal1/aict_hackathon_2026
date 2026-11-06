@@ -1,39 +1,37 @@
 import { useEffect, useState, type ChangeEvent } from 'react'
-import type { PantryItem } from '../data/types'
+import type { RecognizedFood } from '../data/types'
 import { MAX_PHOTOS, recognizePhotos } from '../lib/photo'
 
 type Status =
   | { kind: 'idle' }
   | { kind: 'reading' }
-  | { kind: 'done'; labels: string[] }
+  | { kind: 'done'; count: number }
   | { kind: 'error'; message: string }
 
 // input: 材料入力の画面。add: 結果を見たあとに、足りない材料を撮り足す
 type Mode = 'input' | 'add'
 
-const COPY: Record<Mode, { button: string; lead: string; found: string; none: string }> = {
+const COPY: Record<Mode, { button: string; lead: string; none: string }> = {
   input: {
     button: '写真で材料を撮るべ',
     lead: '撮った写真から、材料を見つけてやっからな',
-    found: 'が見つかったぞ。違ってたら下で直してけさい',
     none: 'これっつうもんが見つかんねがった。下の「＋ 材料を足すべ」から選んでけさい',
   },
   add: {
     button: '写真でもう一回撮るべ',
     lead: '撮り忘れた材料があったら、もう一回撮ってけさい',
-    found: 'を足したぞ。下の一覧を見てけさい',
     none: 'これっつうもんが見つかんねがった。下の「材料を足すべ」から選んでけさい',
   },
 }
 
 type Props = {
-  pantry: PantryItem[]
-  onRecognized: (ids: string[]) => void
+  onRecognized: (foods: RecognizedFood[]) => void
   mode?: Mode
 }
 
-// 写真を撮る（えらぶ）と、写っている材料を AI が見分けて、チェック一覧に印を付ける
-export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
+// 写真を撮る（えらぶ）と、写っている食材を AI がすべて書き出す
+// 見つかった食材は FoundFoods に並び、使うかどうかは使う人が選ぶ
+export function PhotoReader({ onRecognized, mode = 'input' }: Props) {
   const copy = COPY[mode]
   const [status, setStatus] = useState<Status>({ kind: 'idle' })
   const [previews, setPreviews] = useState<string[]>([])
@@ -47,10 +45,9 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
     setPreviews(files.map((file) => URL.createObjectURL(file)))
     setStatus({ kind: 'reading' })
     try {
-      const ids = await recognizePhotos(files)
-      onRecognized(ids)
-      const labels = ids.map((id) => pantry.find((p) => p.id === id)?.label ?? id)
-      setStatus({ kind: 'done', labels })
+      const foods = await recognizePhotos(files)
+      onRecognized(foods)
+      setStatus({ kind: 'done', count: foods.length })
     } catch (error) {
       setStatus({ kind: 'error', message: (error as Error).message })
     }
@@ -117,10 +114,10 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
 
       {status.kind === 'done' && (
         <p className="mt-3 text-sm leading-relaxed" role="status">
-          {status.labels.length > 0 ? (
+          {status.count > 0 ? (
             <>
-              <span className="font-bold">{status.labels.join('・')}</span>
-              {copy.found}
+              <span className="font-bold">写真から {status.count} 個の食材を見つけたぞ。</span>
+              「見つかった材料」から、使うもんを選んでけさい
             </>
           ) : (
             copy.none

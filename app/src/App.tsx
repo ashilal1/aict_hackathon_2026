@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import kozuyu from './data/kozuyu.json'
-import type { KozuyuData } from './data/types'
+import type { KozuyuData, RecognizedFood } from './data/types'
 import { buildResult } from './lib/buildResult'
 import { loadSpinImages } from './lib/granny'
 import { OnboardingScreen } from './screens/OnboardingScreen'
@@ -32,6 +32,9 @@ export default function App() {
   const [screen, setScreen] = useState<Screen>('onboarding')
   const [style, setStyle] = useState<CookingStyleId | null>(null)
   const [checked, setChecked] = useState<Set<string>>(() => new Set())
+  // 写真で見つかった食材のすべてと、そのうち pantry に無いもので使うと選んだ名前
+  const [foods, setFoods] = useState<RecognizedFood[]>([])
+  const [extras, setExtras] = useState<Set<string>>(() => new Set())
   const result = useMemo(() => buildResult(checked, data), [checked])
   const effort = effortById(effortFor(style, checked))
 
@@ -51,8 +54,17 @@ export default function App() {
       return next
     })
 
-  // 写真で見つかった材料は、いまのチェックに足す（外すのは使う人が手で）
-  const addRecognized = (ids: string[]) => setChecked((prev) => new Set([...prev, ...ids]))
+  const toggleExtra = (name: string) =>
+    setExtras((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+
+  // 写真で見つかった食材は一覧に足すだけ。使うかどうかは使う人が選ぶ
+  const addFoods = (found: RecognizedFood[]) =>
+    setFoods((prev) => [...prev, ...found.filter((food) => !prev.some((p) => p.name === food.name))])
   const remove = (ids: string[]) => setChecked((prev) => new Set([...prev].filter((id) => !ids.includes(id))))
 
   const showRecommendation = useCallback(() => setScreen('recommendation'), [])
@@ -80,16 +92,22 @@ export default function App() {
       {screen === 'input' && (
         <InputScreen
           data={data}
+          foods={foods}
           checked={checked}
+          extras={extras}
           onToggle={toggle}
-          onRecognized={addRecognized}
+          onToggleExtra={toggleExtra}
+          onRecognized={addFoods}
           onSubmit={() => setScreen('ingredientJudging')}
         />
       )}
       {screen === 'ingredientJudging' && (
         <JudgingScreen
           line={data.lines.judging}
-          labels={data.pantry.filter((item) => checked.has(item.id)).map((item) => item.label)}
+          labels={[
+            ...data.pantry.filter((item) => checked.has(item.id)).map((item) => item.label),
+            ...extras,
+          ]}
           onDone={showRecommendation}
         />
       )}
@@ -97,10 +115,13 @@ export default function App() {
         <RecommendationScreen
           data={data}
           result={result}
+          foods={foods}
           checked={checked}
+          extras={extras}
           onToggle={toggle}
+          onToggleExtra={toggleExtra}
           onRemove={remove}
-          onRecognized={addRecognized}
+          onRecognized={addFoods}
           onNext={() => setScreen('result')}
           onEditInput={() => setScreen('input')}
         />
@@ -110,6 +131,7 @@ export default function App() {
           data={data}
           result={result}
           checked={checked}
+          extras={extras}
           effort={effort}
           onStartCooking={() => setScreen('cooking')}
           onRestart={() => setScreen('input')}
@@ -119,6 +141,7 @@ export default function App() {
         <CookingScreen
           template={result.template}
           checked={checked}
+          extras={extras}
           effort={effort}
           tips={data.lines.cookingTips}
           onComplete={() => setScreen('completion')}

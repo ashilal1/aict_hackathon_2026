@@ -1,8 +1,9 @@
 import { useCallback, useState } from 'react'
-import type { KozuyuData, Part } from '../data/types'
+import type { KozuyuData, Part, RecognizedFood } from '../data/types'
 import type { Result, Row } from '../lib/buildResult'
 import { Bubble, Card, GrannyFigure, Stepper, VerdictTag } from '../components/parts'
 import { TriviaModal } from '../components/TriviaModal'
+import { FoundFoods } from '../components/FoundFoods'
 import { PhotoReader } from '../components/PhotoReader'
 import { IngredientPicker } from '../components/IngredientPicker'
 
@@ -14,10 +15,13 @@ const SECTIONS: { id: Part['section']; label: string }[] = [
 type Props = {
   data: KozuyuData
   result: Result
+  foods: RecognizedFood[]
   checked: Set<string>
+  extras: Set<string>
   onToggle: (id: string) => void
+  onToggleExtra: (name: string) => void
   onRemove: (ids: string[]) => void
-  onRecognized: (ids: string[]) => void
+  onRecognized: (foods: RecognizedFood[]) => void
   onNext: () => void
   onEditInput: () => void
 }
@@ -25,8 +29,11 @@ type Props = {
 export function RecommendationScreen({
   data,
   result,
+  foods,
   checked,
+  extras,
   onToggle,
+  onToggleExtra,
   onRemove,
   onRecognized,
   onNext,
@@ -44,7 +51,7 @@ export function RecommendationScreen({
         <Bubble>{result.template ? data.lines.recommendation : data.lines.noTemplate}</Bubble>
       </div>
 
-      <PhotoReader pantry={data.pantry} onRecognized={onRecognized} mode="add" />
+      <PhotoReader onRecognized={onRecognized} mode="add" />
 
       <div className="grid gap-3 md:grid-cols-2 md:items-start md:gap-5">
         <Card title="本物と、今日の代わり">
@@ -98,6 +105,17 @@ export function RecommendationScreen({
               </ul>
             </div>
           ))}
+          {extras.size > 0 && (
+            <div className="mt-3">
+              <h3 className="rounded-md bg-kinari px-2 py-1 text-[13px] font-bold text-sumi">
+                自分で足すもの
+              </h3>
+              <p className="px-1 pt-2.5 font-bold">{[...extras].join('・')}</p>
+              <p className="mt-1 px-1 text-xs text-sumi">
+                本来のこづゆの材料ではねえから、味を見ながら使ってけさい
+              </p>
+            </div>
+          )}
         </Card>
 
         <div className="flex flex-col gap-3 md:gap-5">
@@ -126,7 +144,15 @@ export function RecommendationScreen({
             </ul>
           </Card>
 
-          <Card title="材料を足すべ">
+          <Card title="見つかった材料">
+            <FoundFoods
+              foods={foods}
+              pantry={data.pantry}
+              checked={checked}
+              extras={extras}
+              onToggle={onToggle}
+              onToggleExtra={onToggleExtra}
+            />
             <IngredientPicker pantry={data.pantry} checked={checked} onToggle={onToggle} />
           </Card>
         </div>

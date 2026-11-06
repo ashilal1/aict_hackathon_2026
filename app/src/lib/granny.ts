@@ -1,15 +1,12 @@
-// ばあちゃんの 360° 画像（images/kozuyu-onbachan/sphere/）。ビルド時に Vite が取り込む
+// ばあちゃんの画像。ビルド時に Vite が取り込む
+// 止まっているとき（顔アイコンと、判定の最後）は、まっすぐ正面を向いた 1 枚を使う
+import front from '../../../images/kozuyu-onbachan/front.webp'
+
+// 回っている最中は 360° 画像（images/kozuyu-onbachan/sphere/）を使う
 // 撮影データ: 横 10° 刻み × 縦 -80〜+80° 10° 刻み、真上/真下（±89°）は 0/90/180/270° の 4 枚
 
-// 高画質版は、正面の高さで横に一周する 36 枚だけ（顔アイコンと、判定の最後に止まる正面）
-const fullModules = import.meta.glob<string>('../../../images/kozuyu-onbachan/sphere/full/e+00_a*.webp', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-})
-
-// 回している最中は、全方位そろった小さい版（384px）を使う
-const smallModules = import.meta.glob<string>('../../../images/kozuyu-onbachan/sphere/small/*.webp', {
+// 回転の通り道の 68 枚だけを 768px にしたもの（元は sphere/full/ の高画質版）
+const midModules = import.meta.glob<string>('../../../images/kozuyu-onbachan/sphere/mid/*.webp', {
   eager: true,
   query: '?url',
   import: 'default',
@@ -17,16 +14,9 @@ const smallModules = import.meta.glob<string>('../../../images/kozuyu-onbachan/s
 
 const fileName = (path: string) => path.slice(path.lastIndexOf('/') + 1)
 
-const SMALL = new Map(Object.entries(smallModules).map(([path, url]) => [fileName(path), url]))
+const MID = new Map(Object.entries(midModules).map(([path, url]) => [fileName(path), url]))
 
-const azimuthOf = (path: string) => Number(path.match(/_a(\d{3})\.webp$/)![1])
-
-// 添字 i が方位 i×10° の画像。0 番が正面
-export const GRANNY_FRAMES = Object.keys(fullModules)
-  .sort((a, b) => azimuthOf(a) - azimuthOf(b))
-  .map((path) => fullModules[path])
-
-export const GRANNY_FRONT = GRANNY_FRAMES[0]
+export const GRANNY_FRONT = front
 
 const POLE_AZ = [0, 90, 180, 270]
 const POLE_SPIN = -1 // 真上で方位が増えると画像は反時計回りに回る（撮影結果から確認済み）
@@ -68,31 +58,74 @@ export function frameFor(yaw: number, pitch: number): GrannyView {
   return { file: `e${elName(el)}_a${pad(a, 3)}.webp`, rot }
 }
 
-export const smallUrl = (file: string) => SMALL.get(file)
+export const midUrl = (file: string) => MID.get(file)
 
 // 判定シーンの回り方: 横と縦に同時に 1 周ずつ回して、正面で止まる
-export const SPIN_MS = 2600
+export const SPIN_MS = 3000
 
-const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t ** 3 : 1 - (-2 * t + 2) ** 3 / 2)
+const SPIN_STEPS = 72
+const SPIN_STEP_DEG = 10
+// 正面の画像にいちばん近い撮影データは方位 350°。ここから回り始めて、ここで止まる
+const SPIN_START_YAW = -10
 
-export function spinView(t: number): GrannyView {
-  const e = easeInOutCubic(Math.min(Math.max(t, 0), 1))
-  return frameFor(360 * e, 360 * e)
+// 回転の通り道にある画像。最初と最後（null）は正面の画像
+// 撮影データは 10° 刻みなので、横と縦を 1 段ずつ交互に進めて、1 周の段数を増やす
+export const SPIN_KEYFRAMES: (GrannyView | null)[] = Array.from({ length: SPIN_STEPS + 1 }, (_, i) =>
+  i === 0 || i === SPIN_STEPS
+    ? null
+    : frameFor(SPIN_START_YAW + Math.ceil(i / 2) * SPIN_STEP_DEG, Math.floor(i / 2) * SPIN_STEP_DEG),
+)
+
+// 回り始めと止まる前の割合。ここが長いと 1 段ずつ見えてしまうので、短くして等速で回す時間を長くする
+const RAMP = 0.12
+
+// 動き出しと止まり際だけなめらかに加減速し、あいだは等速で進む
+export function easeSpin(t: number): number {
+  if (t > 0.5) return 1 - easeSpin(1 - t)
+  const cruise = 1 / (1 - RAMP)
+  if (t >= RAMP) return cruise * (t - RAMP / 2)
+  return (cruise * (t - (RAMP / Math.PI) * Math.sin((Math.PI * t) / RAMP))) / 2
 }
 
-// 回る途中で通る画像の一覧（先読み用）。620 枚すべては読み込まない
-export function spinFiles(): string[] {
-  const files = new Set<string>()
-  for (let i = 0; i <= 240; i++) files.add(spinView(i / 240).file)
-  return [...files]
+// 横の 1 段は縦の 1 段より絵の変化が小さいので（実測で 4.7 対 6.7）、時間も短くして見た目の速さをそろえる
+const YAW_SHARE = 0.41
+
+function stepPosition(progress: number) {
+  const pairs = (progress * SPIN_STEPS) / 2
+  const pair = Math.floor(pairs)
+  const rest = pairs - pair
+  return pair * 2 + (rest < YAW_SHARE ? rest / YAW_SHARE : 1 + (rest - YAW_SHARE) / (1 - YAW_SHARE))
 }
 
-// 判定シーンでカクつかないように、入力画面のうちに読み込んでおく
-export function preloadGranny() {
-  const urls = [GRANNY_FRONT, ...spinFiles().map(smallUrl)]
-  for (const src of urls) {
-    if (!src) continue
-    const img = new Image()
-    img.src = src
-  }
+// 1 コマの真ん中で前の画像から後の画像へ切り替える。width は 1 コマのうち混ぜる幅
+export const spinFade = (mix: number, width: number) => Math.min(Math.max((mix - 0.5) / width + 0.5, 0), 1)
+
+// t（0〜1）のときの 2 枚の添字と、後の 1 枚の濃さ
+// 等速の間は絵がくっきり見えるように狭く、1 段が長くなる加減速の間は段差が見えないように全部混ぜる
+export function spinBlend(t: number) {
+  const clamped = Math.min(Math.max(t, 0), 1)
+  const position = stepPosition(easeSpin(clamped))
+  const from = Math.min(Math.floor(position), SPIN_STEPS - 1)
+  const inRamp = clamped < RAMP || clamped > 1 - RAMP
+  return { from, to: from + 1, fade: spinFade(position - from, inRamp ? 1 : 0.5) }
+}
+
+export type SpinFrame = { image: HTMLImageElement; rot: number }
+
+let spinLoad: Promise<SpinFrame[] | null> | undefined
+
+// SPIN_KEYFRAMES と同じ順の、デコード済みの画像。1 枚でも失敗したら null を返し、次はやり直す
+export function loadSpinImages() {
+  spinLoad ??= Promise.all(
+    SPIN_KEYFRAMES.map(async (view) => {
+      const image = new Image()
+      image.src = view ? (midUrl(view.file) ?? '') : GRANNY_FRONT
+      await image.decode()
+      return { image, rot: view?.rot ?? 0 }
+    }),
+  ).catch(() => {
+    spinLoad = undefined
+    return null
+  })
+  return spinLoad
 }

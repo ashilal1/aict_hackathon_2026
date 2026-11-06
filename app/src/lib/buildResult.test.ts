@@ -42,9 +42,9 @@ describe('本物と今回の代わり', () => {
     })
   })
 
-  it('本物も代わりも無いとき、外せない材料は「代わりなし」、それ以外は「なくても作れる」', () => {
-    expect(rowOf([], 'mamefu')).toMatchObject({ text: '代わりなし', verdict: 'irreplaceable' })
-    expect(rowOf([], 'kikurage')).toMatchObject({ text: 'なくても作れる', verdict: 'omit' })
+  it('本物も代わりも無いとき、外せない材料は「代わりがねえ」、それ以外は「なくても作れっぞ」', () => {
+    expect(rowOf([], 'mamefu')).toMatchObject({ text: '代わりがねえ', verdict: 'irreplaceable' })
+    expect(rowOf([], 'kikurage')).toMatchObject({ text: 'なくても作れっぞ', verdict: 'omit' })
   })
 })
 
@@ -57,7 +57,7 @@ describe('会津から買うなら', () => {
   it('了承が無い作り手は名前を出さない', () => {
     const result = buildResult([], data)
     const mamefu = result.aizu.find((a) => a.original === '豆麩')!
-    expect(mamefu.sources[0].label).toBe('会津若松の事業者が作っているもの')
+    expect(mamefu.sources[0].label).toBe('会津若松の事業者が作ってるもん')
     expect(mamefu.sources[0].url).toBeNull()
   })
 
@@ -102,6 +102,13 @@ describe('行を消すときに外す材料', () => {
 
 // チームが kozuyu.json を書き換えたときに、つづりの間違いで画面が壊れないようにする
 describe('kozuyu.json の中身', () => {
+  it('もっとおいしくするには？の項目は、pantry にある材料を指している', () => {
+    const pantryIds = new Set(data.pantry.map((item) => item.id))
+    const ids = data.enhancements.map((item) => item.id)
+    expect(new Set(ids).size).toBe(ids.length)
+    expect(data.enhancements.filter((item) => !pantryIds.has(item.pantryId))).toEqual([])
+  })
+
   const pantryIds = new Set(data.pantry.map((p) => p.id))
   const sourceIds = new Set(data.sources.map((s) => s.id))
 
@@ -121,6 +128,9 @@ describe('kozuyu.json の中身', () => {
   it('紹介の材料と言葉は、どれも説明がある', () => {
     expect(data.intro.ingredients.every((item) => item.label && item.fact)).toBe(true)
     expect(data.intro.words.every((item) => item.word && item.meaning)).toBe(true)
+    expect(data.onboarding.howTo.every((item) => item.title && item.text)).toBe(true)
+    expect(data.onboarding.granny.profile.every((item) => item.label && item.text)).toBe(true)
+    expect(data.onboarding.declaration.items).toHaveLength(6)
   })
 
   it('評価の項目は 1 つ以上あり、id が重ならない', () => {

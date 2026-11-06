@@ -8,6 +8,14 @@ export type PantryItem = {
   group: PantryGroup
 }
 
+// 判定の結果に出す、任意のひと手間
+export type Enhancement = {
+  id: string
+  pantryId: string
+  title: string
+  reason: string
+}
+
 // 代用がどこまで足りるか。食べ比べが済むまでは仮の判定
 export type Verdict = 'ok' | 'irreplaceable'
 
@@ -69,15 +77,28 @@ export type EvaluationAspect = {
 
 export type KozuyuData = {
   dish: string
-  // true のあいだは、分量・判定が試作前の仮の値であることを画面に出す
-  draft: boolean
-  // アプリを開いて最初に出す紹介
+  // オンボーディングのこづゆの説明
   intro: {
     greeting: string
     ingredients: { label: string; fact: string }[]
     words: { word: string; meaning: string }[]
   }
+  // アプリを開いて最初に出す、使い方とこづゆばあちゃんの紹介
+  onboarding: {
+    greeting: string
+    howTo: { title: string; text: string }[]
+    granny: {
+      greeting: string
+      profile: { label: string; text: string }[]
+      note: string
+    }
+    declaration: {
+      items: string[]
+      closing: string[]
+    }
+  }
   pantry: PantryItem[]
+  enhancements: Enhancement[]
   parts: Part[]
   templates: Template[]
   sources: Source[]
@@ -85,7 +106,6 @@ export type KozuyuData = {
     greeting: string
     recommendation: string
     judging: string
-    recipeJudging: string
     noTemplate: string
     completion: string
     evaluation: string

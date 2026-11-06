@@ -66,13 +66,13 @@ function buildRow(part: Part, checked: Set<string>): Row {
     }
   }
   return part.essential
-    ? { ...base, text: '代わりなし', verdict: 'irreplaceable', usedIds: [] }
-    : { ...base, text: 'なくても作れる', verdict: 'omit', usedIds: [] }
+    ? { ...base, text: '代わりがねえ', verdict: 'irreplaceable', usedIds: [] }
+    : { ...base, text: 'なくても作れっぞ', verdict: 'omit', usedIds: [] }
 }
 
 const GENERIC_LABEL: Record<Source['kind'], string> = {
-  maker: '会津若松の事業者が作っているもの',
-  seller: '会津若松の事業者が売っているもの',
+  maker: '会津若松の事業者が作ってるもん',
+  seller: '会津若松の事業者が売ってるもん',
   restaurant: '',
 }
 
@@ -94,9 +94,9 @@ function buildMemo(aizu: AizuItem[]): string | null {
   if (aizu.length === 0) return null
   const lines = aizu.slice(0, MEMO_MAX_LINES).map((item) => {
     const how = item.sources.flatMap((s) => s.how)
-    return `・${item.original}：${how.length > 0 ? how.join('／') : '買える場所は確認中'}`
+    return `・${item.original}：${how.length > 0 ? how.join('／') : '買える場所は今確かめてる'}`
   })
-  return ['こづゆの買い物メモ（会津で買うもの）', ...lines].join('\n')
+  return ['こづゆの買い物メモ（会津で買うもん）', ...lines].join('\n')
 }
 
 export function buildResult(checkedIds: Iterable<string>, data: KozuyuData): Result {

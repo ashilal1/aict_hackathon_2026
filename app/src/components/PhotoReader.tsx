@@ -13,16 +13,16 @@ type Mode = 'input' | 'add'
 
 const COPY: Record<Mode, { button: string; lead: string; found: string; none: string }> = {
   input: {
-    button: '写真で材料を撮る',
-    lead: '撮った写真から、食材を自動で見つけます',
-    found: 'が見つかったよ。違ったら下で直してけさい',
-    none: 'これというものが見つからんかった。下の「＋ 材料を足す」から選んでけさい',
+    button: '写真で材料を撮るべ',
+    lead: '撮った写真から、材料を見つけてやっからな',
+    found: 'が見つかったぞ。違ってたら下で直してけさい',
+    none: 'これっつうもんが見つかんねがった。下の「＋ 材料を足すべ」から選んでけさい',
   },
   add: {
-    button: '写真でもう一度撮る',
-    lead: '撮り忘れた材料があったら、もう一度撮ってけさい',
-    found: 'を足したよ。下の一覧を見てけさい',
-    none: 'これというものが見つからんかった。下の「材料を足す」から選んでけさい',
+    button: '写真でもう一回撮るべ',
+    lead: '撮り忘れた材料があったら、もう一回撮ってけさい',
+    found: 'を足したぞ。下の一覧を見てけさい',
+    none: 'これっつうもんが見つかんねがった。下の「材料を足すべ」から選んでけさい',
   },
 }
 
@@ -61,7 +61,7 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
   return (
     <div>
       <label
-        className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed border-kincha bg-[#fffdf7] text-left md:mx-auto md:max-w-md ${
+        className={`flex w-full cursor-pointer items-center gap-3 rounded-2xl border-2 border-dashed border-kincha bg-[#fffdf7] text-left ${
           mode === 'input' ? 'min-h-16 px-3.5 py-2.5' : 'min-h-11 justify-center rounded-xl px-3 py-2'
         } ${reading ? 'pointer-events-none opacity-50' : 'active:bg-stone-100'}`}
       >
@@ -87,11 +87,11 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
         )}
         <span className="flex flex-col gap-0.5">
           <span className={`font-bold ${mode === 'input' ? 'text-[15px]' : 'text-sm'}`}>
-            {reading ? 'ばあちゃんが写真を見とる…' : copy.button}
+            {reading ? 'こづゆばあちゃんが写真を見てっぞ…' : copy.button}
           </span>
           {mode === 'input' && (
             <span className="text-xs text-sumi">
-              {copy.lead}（{MAX_PHOTOS} 枚まで・写真は保存しません）
+              {copy.lead}（{MAX_PHOTOS} 枚まで）
             </span>
           )}
         </span>
@@ -105,9 +105,7 @@ export function PhotoReader({ pantry, onRecognized, mode = 'input' }: Props) {
           disabled={reading}
         />
       </label>
-      {mode === 'add' && (
-        <p className="mt-1.5 text-center text-xs text-sumi">{copy.lead}（写真は保存しません）</p>
-      )}
+      {mode === 'add' && <p className="mt-1.5 text-center text-xs text-sumi">{copy.lead}</p>}
 
       {previews.length > 0 && (
         <div className="mt-3 flex justify-center gap-2">

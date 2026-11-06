@@ -1,7 +1,7 @@
 import type { KozuyuData } from '../data/types'
 import type { Result } from '../lib/buildResult'
 import type { EffortLevel } from '../lib/effort'
-import { Bubble, Card, DraftNote, GrannyFace, Stepper } from '../components/parts'
+import { Bubble, Card, GrannyFigure, Stepper } from '../components/parts'
 
 type Props = {
   data: KozuyuData
@@ -18,7 +18,7 @@ export function ResultScreen({ data, result, effort, onStartCooking, onRestart }
     <div className="flex flex-1 flex-col gap-3 px-4 pt-3 pb-8 md:gap-5 md:px-10 md:pt-6">
       <Stepper current={3} />
       <div className="flex items-center gap-3 md:justify-center">
-        <GrannyFace size={52} />
+        <GrannyFigure />
         <Bubble>
           {template ? `「${effort.shortLabel}」なら、ここを意識して作ってみっせ` : data.lines.noTemplate}
         </Bubble>
@@ -58,26 +58,27 @@ export function ResultScreen({ data, result, effort, onStartCooking, onRestart }
           <Card title="最初に、出汁" className="md:col-span-2">
             <p className="font-bold text-shu">{effort.dashiTime}</p>
             <p className="mt-2 leading-relaxed">{effort.dashiMethod}</p>
-            <p className="mt-2.5 rounded-xl bg-kinari p-2.5 text-[13px] leading-relaxed text-sumi">
-              注意：{effort.caution}
-            </p>
+            {effort.caution && (
+              <p className="mt-2.5 rounded-xl bg-kinari p-2.5 text-[13px] leading-relaxed text-sumi">
+                注意：{effort.caution}
+              </p>
+            )}
           </Card>
         </div>
       ) : (
-        <Card title="だしになるもの">
-          <p className="mb-3">次のどれか1つがあれば作れます。</p>
+        <Card title="だしになるもん">
+          <p className="mb-3">次のどれか1つがあれば作れっからな。</p>
           <p className="text-lg font-bold">{result.needOneOf.join('・')}</p>
         </Card>
       )}
 
-      {data.draft && <DraftNote />}
       {template && (
         <button
           type="button"
           onClick={onStartCooking}
           className="min-h-14 w-full rounded-full bg-shu text-[17px] font-bold text-white shadow-lg md:mx-auto md:max-w-md"
         >
-          ばあちゃんと作り始める
+          こづゆばあちゃんと作り始めるべ
         </button>
       )}
       <button
@@ -85,7 +86,7 @@ export function ResultScreen({ data, result, effort, onStartCooking, onRestart }
         onClick={onRestart}
         className="min-h-12 w-full rounded-full border-2 border-ai font-bold md:mx-auto md:max-w-md"
       >
-        材料を選び直す
+        材料を選び直すべ
       </button>
     </div>
   )

@@ -7,13 +7,12 @@ type Props = {
   pantry: PantryItem[]
   checked: Set<string>
   onToggle: (id: string) => void
-  defaultOpen?: boolean
 }
 
-// 「＋ 材料を足す」を押すと、まだ選んでいない材料が出る。押した材料は選んだ側へ移る
+// 「＋ 材料を足すべ」を押すと、まだ選んでいない材料が出る。押した材料は選んだ側へ移る
 // 名前は自由入力にしない。kozuyu.json にある材料だけを判定に使うため
-export function IngredientPicker({ pantry, checked, onToggle, defaultOpen = false }: Props) {
-  const [open, setOpen] = useState(defaultOpen)
+export function IngredientPicker({ pantry, checked, onToggle }: Props) {
+  const [open, setOpen] = useState(false)
   const rest = pantry.filter((item) => !checked.has(item.id))
 
   if (!open) {
@@ -23,7 +22,7 @@ export function IngredientPicker({ pantry, checked, onToggle, defaultOpen = fals
         onClick={() => setOpen(true)}
         className="min-h-11 w-full rounded-xl border-2 border-dashed border-kincha bg-[#fffdf7] text-sm font-bold"
       >
-        ＋ 材料を足す
+        ＋ 材料を足すべ
       </button>
     )
   }
@@ -51,13 +50,13 @@ export function IngredientPicker({ pantry, checked, onToggle, defaultOpen = fals
           </div>
         )
       })}
-      {rest.length === 0 && <p className="text-sm text-sumi">足せる材料は、もうありません</p>}
+      {rest.length === 0 && <p className="text-sm text-sumi">足せる材料は、もうねえな</p>}
       <button
         type="button"
         onClick={() => setOpen(false)}
         className="w-full py-1 text-sm font-bold underline"
       >
-        閉じる
+        閉じるべ
       </button>
     </div>
   )

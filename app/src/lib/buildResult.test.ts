@@ -126,6 +126,8 @@ describe('kozuyu.json の中身', () => {
   })
 
   it('紹介の材料と言葉は、どれも説明がある', () => {
+    expect(data.intro.about.length).toBeGreaterThan(0)
+    expect(data.intro.about.every((item) => item.label && item.text)).toBe(true)
     expect(data.intro.ingredients.every((item) => item.label && item.fact)).toBe(true)
     expect(data.intro.words.every((item) => item.word && item.meaning)).toBe(true)
     expect(data.onboarding.howTo.every((item) => item.title && item.text)).toBe(true)

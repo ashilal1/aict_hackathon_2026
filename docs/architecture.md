@@ -122,6 +122,7 @@ VPC の困りごと（[VPC 2 章](products/reverse-chef-vpc.md#2-課題何に困
 - 評価の観点と項目は `kozuyu.json` の `evaluation.aspects` に入れる。いまは「観点 A（未定）」などの仮の枠で、画面にも「仮」と出す。項目が決まったら JSON を書き換えるだけでよい
 - ⚪︎／❌ をすべて付けると「結果を見る」で ⚪︎ の数を出す。保存・送信はしない（デザイン案の「評価を送る」は、送らないので言葉を変えた）
 - 紹介画面の材料の説明と会津の言葉は `kozuyu.json` の `intro` に入れた。材料の説明は [kozuyu-variations.md](kozuyu-variations.md) と `parts[].note` から書いた
+- 紹介画面の「こづゆとは」（どんな料理／いつ食べる／どう食べる）は `intro.about` に入れた。押さなくても読めるように常に出す。文面は [kozuyu-variations.md](kozuyu-variations.md)、[hearing-takino.md](hearing-takino.md) の農水省の出典、`lines.cookingTips` から書いた
 
 **変更（2026-11-06）**: 最初に作り方を選ぶ画面を足し、出汁の取り方を選ぶ画面と 2 回目の判定をなくした。
 

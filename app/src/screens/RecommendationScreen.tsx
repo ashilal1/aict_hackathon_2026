@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react'
 import type { KozuyuData, Part } from '../data/types'
 import type { Result, Row } from '../lib/buildResult'
-import { Bubble, Card, DraftNote, GrannyFace, VerdictTag } from '../components/parts'
-import { ScoreCard } from '../components/ScoreCard'
+import { Bubble, Card, GrannyFigure, Stepper, VerdictTag } from '../components/parts'
 import { TriviaModal } from '../components/TriviaModal'
+import { PhotoReader } from '../components/PhotoReader'
+import { IngredientPicker } from '../components/IngredientPicker'
 
 const SECTIONS: { id: Part['section']; label: string }[] = [
   { id: 'dashi', label: 'だし' },
@@ -13,74 +14,140 @@ const SECTIONS: { id: Part['section']; label: string }[] = [
 type Props = {
   data: KozuyuData
   result: Result
+  checked: Set<string>
+  onToggle: (id: string) => void
+  onRemove: (ids: string[]) => void
+  onRecognized: (ids: string[]) => void
   onNext: () => void
+  onEditInput: () => void
 }
 
-export function RecommendationScreen({ data, result, onNext }: Props) {
+export function RecommendationScreen({
+  data,
+  result,
+  checked,
+  onToggle,
+  onRemove,
+  onRecognized,
+  onNext,
+  onEditInput,
+}: Props) {
   const [selectedRow, setSelectedRow] = useState<Row | null>(null)
   const closeModal = useCallback(() => setSelectedRow(null), [])
 
   return (
-    <div className="flex flex-1 flex-col gap-4 px-4 pt-5 pb-8 md:gap-6 md:px-10 md:pt-6">
-      <div className="flex items-center gap-4 md:justify-center">
-        <GrannyFace size={64} />
-        <Bubble>{result.template ? result.score.comment : data.lines.noTemplate}</Bubble>
+    <div className="flex flex-1 flex-col gap-3 px-4 pt-3 pb-8 md:mx-auto md:w-full md:max-w-4xl md:gap-5 md:pt-6">
+      <Stepper current={2} />
+
+      <div className="flex items-center gap-3 md:justify-center">
+        <GrannyFigure />
+        <Bubble>{result.template ? data.lines.recommendation : data.lines.noTemplate}</Bubble>
       </div>
 
-      <ScoreCard score={result.score} rows={result.rows} />
+      <PhotoReader pantry={data.pantry} onRecognized={onRecognized} mode="add" />
 
-      <Card title="本物と、今日の代わり">
-        <p className="mb-3 text-sm leading-relaxed text-sumi">
-          「豆知識」を押すと、味や食感の違いと使うときのコツが見られます。
-        </p>
-        {SECTIONS.map((section) => (
-          <div key={section.id} className="mb-3 last:mb-0">
-            <h3 className="border-b border-stone-200 pb-1 text-sm font-bold text-sumi">{section.label}</h3>
-            <ul className="divide-y divide-stone-100">
-              {result.rows
-                .filter((row) => row.section === section.id)
-                .map((row) => (
-                  <li key={row.partId} className="py-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="font-bold">
-                          {row.original}
-                          {row.verdict !== 'real' && (
-                            <>
-                              <span className="mx-1.5 text-sumi">→</span>
-                              {row.text}
-                            </>
+      <div className="grid gap-3 md:grid-cols-2 md:items-start md:gap-5">
+        <Card title="本物と、今日の代わり">
+          {SECTIONS.map((section) => (
+            <div key={section.id} className="mb-3 last:mb-0">
+              <h3 className="rounded-md bg-kinari px-2 py-1 text-[13px] font-bold text-sumi">
+                {section.label}
+              </h3>
+              <ul className="divide-y divide-[#f0ebe0]">
+                {result.rows
+                  .filter((row) => row.section === section.id)
+                  .map((row) => (
+                    <li key={row.partId} className="px-1 py-2.5">
+                      <p className="text-xs text-sumi">本物</p>
+                      <p className="font-bold">{row.original}</p>
+                      {row.verdict !== 'real' && (
+                        <>
+                          <p className="mt-1.5 text-xs text-sumi">今日の代わり</p>
+                          <p className={`font-bold ${row.usedIds.length === 0 ? 'text-sumi' : ''}`}>
+                            {row.text}
+                          </p>
+                        </>
+                      )}
+                      {row.note && <p className="mt-1 text-xs text-sumi">{row.note}</p>}
+                      <div className="mt-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-1.5">
+                          <VerdictTag verdict={row.verdict} />
+                          {row.trivia && (
+                            <button
+                              type="button"
+                              onClick={() => setSelectedRow(row)}
+                              className="rounded-full border-[1.5px] border-ai px-2.5 py-1 text-xs font-bold"
+                            >
+                              豆知識
+                            </button>
                           )}
-                        </p>
-                        {row.note && <p className="mt-1 text-xs text-sumi">{row.note}</p>}
+                        </div>
+                        {row.usedIds.length > 0 && (
+                          <button
+                            type="button"
+                            onClick={() => onRemove(row.usedIds)}
+                            aria-label={`${row.original}の行に使った材料を外す`}
+                            className="h-9 w-9 shrink-0 rounded-lg border-[1.5px] border-line text-base text-sumi"
+                          >
+                            ×
+                          </button>
+                        )}
                       </div>
-                      <VerdictTag verdict={row.verdict} />
-                    </div>
-                    {row.trivia && (
-                      <button
-                        type="button"
-                        onClick={() => setSelectedRow(row)}
-                        className="mt-2 rounded-full border border-ai px-3 py-1 text-sm font-bold text-ai"
-                      >
-                        豆知識を見る
-                      </button>
-                    )}
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          ))}
+        </Card>
+
+        <div className="flex flex-col gap-3 md:gap-5">
+          <Card title="もっとうまぐするには？">
+            <p className="mb-3 text-sm text-sumi">気になるひと手間だけ、好きに取り入れてけさい。</p>
+            <ul className="space-y-3">
+              {data.enhancements.map((item) => {
+                const on = checked.has(item.pantryId)
+                return (
+                  <li key={item.id} className="rounded-xl bg-kinari p-3.5">
+                    <p className="font-bold">{item.title}</p>
+                    <p className="mt-1 text-sm leading-relaxed text-sumi">{item.reason}</p>
+                    <button
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => onToggle(item.pantryId)}
+                      className={`mt-2.5 min-h-11 rounded-full border-2 border-ai px-4 text-sm font-bold ${
+                        on ? 'bg-ai text-white' : 'bg-white'
+                      }`}
+                    >
+                      {on ? '✓ 選んだぞ' : '取り入れるべ'}
+                    </button>
                   </li>
-                ))}
+                )
+              })}
             </ul>
-          </div>
-        ))}
-      </Card>
+          </Card>
 
-      {data.draft && <DraftNote />}
+          <Card title="材料を足すべ">
+            <IngredientPicker pantry={data.pantry} checked={checked} onToggle={onToggle} />
+          </Card>
+        </div>
+      </div>
 
-      <button
-        type="button"
-        onClick={onNext}
-        className="w-full rounded-full bg-shu py-4 text-lg font-bold text-white shadow-lg"
-      >
-        作り方の手軽さを選ぶ
-      </button>
+      <div className="mt-2 grid gap-3 md:grid-cols-2">
+        <button
+          type="button"
+          onClick={onNext}
+          className="min-h-14 w-full rounded-full bg-shu text-[17px] font-bold text-white shadow-lg"
+        >
+          今日のこづゆを見るべ
+        </button>
+        <button
+          type="button"
+          onClick={onEditInput}
+          className="min-h-12 w-full rounded-full border-2 border-ai font-bold md:min-h-14"
+        >
+          材料を選び直すべ
+        </button>
+      </div>
 
       {selectedRow && <TriviaModal row={selectedRow} onClose={closeModal} />}
     </div>

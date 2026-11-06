@@ -27,7 +27,7 @@ export async function recognizePhotos(files: File[]): Promise<string[]> {
       })),
     )
   } catch {
-    throw new Error('写真を開けませんでした。別の写真でためしてください')
+    throw new Error('写真を開けねがった。別の写真で試してけさい')
   }
 
   let response: Response
@@ -38,9 +38,9 @@ export async function recognizePhotos(files: File[]): Promise<string[]> {
       body: JSON.stringify({ images }),
     })
   } catch {
-    throw new Error('つながりませんでした。手でチェックしてください')
+    throw new Error('つながんねがった。手で選んでけさい')
   }
   const body = (await response.json().catch(() => ({}))) as { ids?: string[]; error?: string }
-  if (!response.ok) throw new Error(body.error ?? '判定に失敗しました。手でチェックしてください')
+  if (!response.ok) throw new Error(body.error ?? 'うまぐ見られねがった。手で選んでけさい')
   return body.ids ?? []
 }

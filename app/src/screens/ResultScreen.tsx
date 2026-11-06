@@ -1,17 +1,18 @@
 import type { KozuyuData } from '../data/types'
 import type { Result } from '../lib/buildResult'
-import type { EffortLevel } from '../lib/effort'
+import { withPreparation, type EffortLevel } from '../lib/effort'
 import { Bubble, Card, GrannyFigure, Stepper } from '../components/parts'
 
 type Props = {
   data: KozuyuData
   result: Result
+  checked: Set<string>
   effort: EffortLevel
   onStartCooking: () => void
   onRestart: () => void
 }
 
-export function ResultScreen({ data, result, effort, onStartCooking, onRestart }: Props) {
+export function ResultScreen({ data, result, checked, effort, onStartCooking, onRestart }: Props) {
   const { template } = result
 
   return (
@@ -45,7 +46,7 @@ export function ResultScreen({ data, result, effort, onStartCooking, onRestart }
           </Card>
           <Card title="作り方">
             <ol className="flex flex-col gap-2.5">
-              {template.steps.map((step, i) => (
+              {withPreparation(template.steps, checked).map((step, i) => (
                 <li key={step} className="flex gap-2.5 text-[15px] leading-normal font-bold">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ai text-[13px] text-white">
                     {i + 1}

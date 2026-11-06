@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { cookingStepsFor, effortById, effortFor } from './effort'
+import { cookingStepsFor, effortById, effortFor, withPreparation } from './effort'
 
 describe('出汁にかける時間ごとの仮手順', () => {
   const recipeSteps = ['前の晩に、干し貝柱を水に浸けて戻す', '具を小さく切る', '鍋で煮る']
@@ -27,5 +27,23 @@ describe('作り方と材料から決まる出汁の取り方', () => {
     expect(effortFor('easy', new Set(['kaibashira']))).toBe('careful')
     expect(effortFor('authentic', new Set(['kaibashira']))).toBe('careful')
     expect(effortFor('custom', new Set(['kaibashira']))).toBe('careful')
+  })
+})
+
+describe('材料ごとの下ごしらえ', () => {
+  const steps = ['具を小さく切る', '鍋で煮る']
+
+  it('里芋を選んだら、下ゆでを手順の前に足す', () => {
+    expect(withPreparation(steps, new Set(['satoimo']))[0]).toContain('下ゆで')
+  })
+
+  it('麩を選んだら、最後に入れる手順を足す', () => {
+    for (const id of ['mamefu', 'fu']) {
+      expect(withPreparation(steps, new Set([id])).at(-1)).toContain('最後に麩を入れて')
+    }
+  })
+
+  it('里芋も麩もなければ、手順は変えない', () => {
+    expect(withPreparation(steps, new Set(['ninjin']))).toEqual(steps)
   })
 })

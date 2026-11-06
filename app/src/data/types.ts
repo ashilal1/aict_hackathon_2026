@@ -72,7 +72,8 @@ export type Source = {
 export type EvaluationAspect = {
   id: string
   label: string
-  items: { id: string; text: string }[]
+  // note は答えたあとに出す説明
+  items: { id: string; text: string; note: string }[]
 }
 
 export type KozuyuData = {

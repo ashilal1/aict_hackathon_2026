@@ -45,6 +45,18 @@ export function effortFor(style: CookingStyleId | null, checked: Set<string>): E
   return style === 'easy' ? 'quick' : 'standard'
 }
 
+// 里芋の下ゆでと、麩を最後に入れることは、資料で多い作り方（docs/kozuyu-variations.md）
+// 選んだ材料にかかわる分だけ、レシピの手順に足す
+export function withPreparation(steps: string[], checked: Set<string>): string[] {
+  const hasFu = checked.has('mamefu') || checked.has('fu')
+  return [
+    ...(checked.has('satoimo') ? ['里芋は下ゆでして洗って、ぬめりを取ってけさい'] : []),
+    ...(hasFu ? ['麩は最後に入れっから、よけといてけさい'] : []),
+    ...steps,
+    ...(hasFu ? ['最後に麩を入れて、汁を含ませてけさい'] : []),
+  ]
+}
+
 export function cookingStepsFor(steps: string[], effort: EffortLevel): string[] {
   const withoutOvernightStep = steps.filter((step) => !step.includes('前の晩に、干し貝柱を水に浸けて戻す'))
   return [effort.dashiMethod, ...withoutOvernightStep]

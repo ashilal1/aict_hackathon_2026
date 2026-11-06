@@ -41,35 +41,35 @@ export function EvaluationScreen({ data, onRestart }: Props) {
           <Card key={aspect.id} title={aspect.label}>
             <ul>
               {aspect.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="flex items-center justify-between gap-2 border-t border-[#f0ebe0] py-2 first:border-t-0"
-                >
-                  <span className="text-[15px] font-bold text-sumi">{item.text}</span>
-                  <span role="group" aria-label={`${item.text}の評価`} className="flex shrink-0 gap-1.5">
-                    {[true, false].map((value) => {
-                      const on = answers[item.id] === value
-                      return (
-                        <button
-                          key={String(value)}
-                          type="button"
-                          aria-pressed={on}
-                          aria-label={value ? '感じた（⚪︎）' : '感じなかった（❌）'}
-                          onClick={() => answer(item.id, value)}
-                          className={`h-11 w-11 rounded-[10px] border-2 text-lg transition-colors ${
-                            on
-                              ? value
-                                ? 'border-shu bg-[#fde8e4]'
-                                : 'border-ai bg-sand'
-                              : 'border-line bg-white'
-                          } ${item.id in answers && !on ? 'opacity-50' : ''}`}
-                        >
-                          {/* ⚪︎ の文字は細く小さく出るので、太い ◯ で描く */}
-                          {value ? <span className="text-xl font-bold text-shu">◯</span> : '❌'}
-                        </button>
-                      )
-                    })}
-                  </span>
+                <li key={item.id} className="border-t border-[#f0ebe0] py-2 first:border-t-0">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-[15px] font-bold text-sumi">{item.text}</span>
+                    <span role="group" aria-label={`${item.text}の評価`} className="flex shrink-0 gap-1.5">
+                      {[true, false].map((value) => {
+                        const on = answers[item.id] === value
+                        return (
+                          <button
+                            key={String(value)}
+                            type="button"
+                            aria-pressed={on}
+                            aria-label={value ? '感じた（⚪︎）' : '感じなかった（❌）'}
+                            onClick={() => answer(item.id, value)}
+                            className={`h-11 w-11 rounded-[10px] border-2 text-lg transition-colors ${
+                              on
+                                ? value
+                                  ? 'border-shu bg-[#fde8e4]'
+                                  : 'border-ai bg-sand'
+                                : 'border-line bg-white'
+                            } ${item.id in answers && !on ? 'opacity-50' : ''}`}
+                          >
+                            {/* ⚪︎ の文字は細く小さく出るので、太い ◯ で描く */}
+                            {value ? <span className="text-xl font-bold text-shu">◯</span> : '❌'}
+                          </button>
+                        )
+                      })}
+                    </span>
+                  </div>
+                  {shown && <p className="mt-1.5 text-[13px] leading-relaxed text-sumi">{item.note}</p>}
                 </li>
               ))}
             </ul>

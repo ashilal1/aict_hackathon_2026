@@ -87,6 +87,7 @@ export type KozuyuData = {
   // オンボーディングのこづゆの説明
   intro: {
     greeting: string
+    about: { label: string; text: string }[]
     ingredients: { label: string; fact: string }[]
     words: { word: string; meaning: string }[]
   }

@@ -51,6 +51,20 @@ export function IntroScreen({ intro }: Props) {
       </div>
 
       <div className="flex flex-col gap-3">
+        <section aria-label="こづゆとは" className="rounded-2xl bg-white px-4 py-1 shadow-sm">
+          <dl className="divide-y divide-[#f0ebe0]">
+            {intro.about.map((item) => (
+              <div
+                key={item.label}
+                className="grid grid-cols-[5.5rem_1fr] gap-2 py-2.5 text-sm leading-relaxed"
+              >
+                <dt className="font-bold text-shu">{item.label}</dt>
+                <dd>{item.text}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
         <section aria-label="会津の食材">
           <p className="mb-1.5 text-xs font-bold text-sumi">
             材料を押してみっせ（触った数 {touched.size} / {intro.ingredients.length}）

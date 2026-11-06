@@ -7,12 +7,13 @@ type Props = {
   data: KozuyuData
   result: Result
   checked: Set<string>
+  extras: Set<string>
   effort: EffortLevel
   onStartCooking: () => void
   onRestart: () => void
 }
 
-export function ResultScreen({ data, result, checked, effort, onStartCooking, onRestart }: Props) {
+export function ResultScreen({ data, result, checked, extras, effort, onStartCooking, onRestart }: Props) {
   const { template } = result
 
   return (
@@ -42,11 +43,23 @@ export function ResultScreen({ data, result, checked, effort, onStartCooking, on
                   <dd className="font-bold">{amount.qty}</dd>
                 </div>
               ))}
+              {[...extras].map((name) => (
+                <div key={name} className="contents">
+                  <dt>{name}</dt>
+                  <dd className="font-bold">好みの分だけ</dd>
+                </div>
+              ))}
             </dl>
+            {extras.size > 0 && (
+              <p className="mt-2 text-xs leading-relaxed text-sumi">
+                {[...extras].join('・')}
+                は自分で足すもんだ。本来のこづゆの材料ではねえから、味を見ながら使ってけさい
+              </p>
+            )}
           </Card>
           <Card title="作り方">
             <ol className="flex flex-col gap-2.5">
-              {withPreparation(template.steps, checked).map((step, i) => (
+              {withPreparation(template.steps, checked, extras).map((step, i) => (
                 <li key={step} className="flex gap-2.5 text-[15px] leading-normal font-bold">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-ai text-[13px] text-white">
                     {i + 1}

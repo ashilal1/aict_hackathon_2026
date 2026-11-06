@@ -22,7 +22,7 @@ npm run build        # 本番ビルド（dist/）
 
 - 手元: `app/.env.example` を `app/.env.local` にコピーして `ANTHROPIC_API_KEY` を書く（`npm run dev` のままで `/api/recognize` も動く）
 - Vercel: プロジェクトの環境変数に `ANTHROPIC_API_KEY` を入れる
-- 写真は判定に使うだけで、保存もログ出力もしない。AI には `pantry` の id 以外を返させない
+- 写真は判定に使うだけで、保存もログ出力もしない。AI には写っている食材を名前ですべて書き出させ、判定に使うのは `pantry` の id だけにする
 
 ## どこに何があるか
 

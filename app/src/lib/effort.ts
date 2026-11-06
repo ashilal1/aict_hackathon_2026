@@ -47,12 +47,30 @@ export function effortFor(style: CookingStyleId | null, checked: Set<string>): E
 
 // 里芋の下ゆでと、麩を最後に入れることは、資料で多い作り方（docs/kozuyu-variations.md）
 // 選んだ材料にかかわる分だけ、レシピの手順に足す
-export function withPreparation(steps: string[], checked: Set<string>): string[] {
+// extras は kozuyu.json に無い、使う人が自分で足すと選んだ食材。具を扱う手順の前に一言添える
+export function withPreparation(
+  steps: string[],
+  checked: Set<string>,
+  extras: Iterable<string> = [],
+): string[] {
   const hasFu = checked.has('mamefu') || checked.has('fu')
+  const names = [...extras]
+  const extraIndex = Math.max(
+    steps.findIndex((step) => step.includes('具を')),
+    0,
+  )
+  const withExtras =
+    names.length > 0
+      ? [
+          ...steps.slice(0, extraIndex),
+          `自分で足す${names.join('・')}も、具といっしょに好みの分だけ使ってけさい`,
+          ...steps.slice(extraIndex),
+        ]
+      : steps
   return [
     ...(checked.has('satoimo') ? ['里芋は下ゆでして洗って、ぬめりを取ってけさい'] : []),
     ...(hasFu ? ['麩は最後に入れっから、よけといてけさい'] : []),
-    ...steps,
+    ...withExtras,
     ...(hasFu ? ['最後に麩を入れて、汁を含ませてけさい'] : []),
   ]
 }

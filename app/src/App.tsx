@@ -2,40 +2,42 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import kozuyu from './data/kozuyu.json'
 import type { KozuyuData } from './data/types'
 import { buildResult } from './lib/buildResult'
-import { preloadGranny } from './lib/granny'
-import { IntroScreen } from './screens/IntroScreen'
+import { loadSpinImages } from './lib/granny'
+import { OnboardingScreen } from './screens/OnboardingScreen'
+import { CookingStyleScreen } from './screens/CookingStyleScreen'
 import { InputScreen } from './screens/InputScreen'
 import { JudgingScreen } from './screens/JudgingScreen'
 import { ResultScreen } from './screens/ResultScreen'
 import { RecommendationScreen } from './screens/RecommendationScreen'
-import { EffortScreen } from './screens/EffortScreen'
 import { CookingScreen } from './screens/CookingScreen'
 import { CompletionScreen } from './screens/CompletionScreen'
 import { EvaluationScreen } from './screens/EvaluationScreen'
-import { effortById, type EffortId } from './lib/effort'
+import { effortById, effortFor } from './lib/effort'
+import type { CookingStyleId } from './lib/cookingStyle'
 
 const data = kozuyu as KozuyuData
 
 type Screen =
-  | 'intro'
+  | 'onboarding'
+  | 'style'
   | 'input'
   | 'ingredientJudging'
   | 'recommendation'
-  | 'effort'
-  | 'recipeJudging'
   | 'result'
   | 'cooking'
   | 'completion'
   | 'evaluation'
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('intro')
+  const [screen, setScreen] = useState<Screen>('onboarding')
+  const [style, setStyle] = useState<CookingStyleId | null>(null)
   const [checked, setChecked] = useState<Set<string>>(() => new Set())
-  const [effort, setEffort] = useState<EffortId>('standard')
   const result = useMemo(() => buildResult(checked, data), [checked])
+  const effort = effortById(effortFor(style, checked))
 
   useEffect(() => {
-    preloadGranny()
+    // 判定シーンをすぐ始められるように、入力画面のうちに読み込んでおく
+    void loadSpinImages()
   }, [])
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -54,28 +56,27 @@ export default function App() {
   const remove = (ids: string[]) => setChecked((prev) => new Set([...prev].filter((id) => !ids.includes(id))))
 
   const showRecommendation = useCallback(() => setScreen('recommendation'), [])
-  const showResult = useCallback(() => setScreen('result'), [])
-  const restart = () => {
-    setScreen('input')
-    setEffort('standard')
-  }
+  const restart = () => setScreen('style')
 
   return (
-    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-kinari shadow-xl md:my-6 md:min-h-[calc(100dvh-3rem)] md:max-w-5xl md:overflow-hidden md:rounded-3xl">
+    <div className="mx-auto flex min-h-dvh max-w-[430px] flex-col bg-kinari shadow-xl md:my-6 md:min-h-[calc(100dvh-3rem)] md:max-w-5xl md:overflow-hidden md:rounded-3xl md:shadow-[0_0_0_2px_#b8862b,0_0_0_6px_#a82a1f,0_0_0_8px_#b8862b,0_16px_48px_rgb(0_0_0/60%)]">
       <div className="aizu-momen h-3 shrink-0 md:h-4" aria-hidden />
-      {screen === 'intro' ? (
-        <header className="hidden px-10 pt-5 md:block">
-          <p className="text-xl font-bold">こづゆばあちゃんの台所</p>
-        </header>
-      ) : (
-        <header className="flex flex-col gap-0.5 px-4 pt-3.5 md:flex-row md:items-center md:justify-between md:px-10 md:pt-5">
-          <p className="text-[17px] font-bold md:text-xl">こづゆばあちゃんの台所</p>
-          <p className={`text-xs text-sumi md:block md:text-sm ${screen === 'input' ? '' : 'hidden'}`}>
-            代用でここまで。残りは、会津で。
-          </p>
-        </header>
+      <header className="urushi-band flex flex-col gap-0.5 border-b-2 border-kincha px-4 py-3 md:flex-row md:items-center md:justify-between md:px-10 md:py-4">
+        <p className="text-[17px] font-bold text-kin md:text-xl">こづゆばあちゃんの台所</p>
+        <p className={`text-xs text-kin/90 md:block md:text-sm ${screen === 'input' ? '' : 'hidden'}`}>
+          代用でここまで。残りは、会津で。
+        </p>
+      </header>
+      {screen === 'onboarding' && <OnboardingScreen data={data} onDone={() => setScreen('style')} />}
+      {screen === 'style' && (
+        <CookingStyleScreen
+          initial={style}
+          onSubmit={(selected) => {
+            setStyle(selected)
+            setScreen('input')
+          }}
+        />
       )}
-      {screen === 'intro' && <IntroScreen intro={data.intro} onStart={() => setScreen('input')} />}
       {screen === 'input' && (
         <InputScreen
           data={data}
@@ -100,33 +101,23 @@ export default function App() {
           onToggle={toggle}
           onRemove={remove}
           onRecognized={addRecognized}
-          onNext={() => setScreen('effort')}
+          onNext={() => setScreen('result')}
           onEditInput={() => setScreen('input')}
         />
       )}
-      {screen === 'effort' && (
-        <EffortScreen
-          initial={effort}
-          onSubmit={(selected) => {
-            setEffort(selected)
-            setScreen('recipeJudging')
-          }}
-        />
-      )}
-      {screen === 'recipeJudging' && <JudgingScreen line={data.lines.recipeJudging} onDone={showResult} />}
       {screen === 'result' && (
         <ResultScreen
           data={data}
           result={result}
-          effort={effortById(effort)}
+          effort={effort}
           onStartCooking={() => setScreen('cooking')}
-          onRestart={restart}
+          onRestart={() => setScreen('input')}
         />
       )}
       {screen === 'cooking' && result.template && (
         <CookingScreen
           template={result.template}
-          effort={effortById(effort)}
+          effort={effort}
           tips={data.lines.cookingTips}
           onComplete={() => setScreen('completion')}
         />

@@ -31,7 +31,7 @@ npm run build        # 本番ビルド（dist/）
 | `src/data/kozuyu.json` | 材料・配合・代わり・作り手・セリフ。チームが試作や電話の結果で書き換える |
 | `src/data/types.ts` | `kozuyu.json` の形 |
 | `src/lib/buildResult.ts` | チェックされた材料から結果を組み立てるルール（AI なし） |
-| `src/lib/granny.ts` | ばあちゃんの 360° 画像（リポジトリ直下の `images/` から読み込む） |
+| `src/lib/granny.ts` | ばあちゃんの正面画像と 360° 画像（リポジトリ直下の `images/` から読み込む） |
 | `src/screens/` | 入力・判定・結果の画面 |
 | `api/recognize.ts` | 写真に写っている材料を判定する関数（`api/` に置いたファイルはすべて公開される関数になるので、テストは `test/` に置く） |
 

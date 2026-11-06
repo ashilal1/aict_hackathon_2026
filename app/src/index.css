@@ -5,7 +5,9 @@
 @theme {
   --color-kinari: #f5efe3;
   --color-ai: #1f2a44;
-  --color-shu: #c0392b;
+  --color-shu: #a82a1f;
+  --color-urushi: #1c0d0b;
+  --color-kin: #e8d5a3;
   --color-kincha: #b8862b;
   --color-kincha-dark: #8a6420;
   --color-sumi: #4a4a4a;
@@ -15,7 +17,19 @@
 }
 
 body {
-  @apply bg-[#e6e7eb] text-ai antialiased;
+  @apply text-ai antialiased;
+  /* 会津塗の漆と金蒔絵。スマホでは画面いっぱいにアプリが出るので見えない */
+  background: var(--color-urushi) url('../../images/urushi.webp') center / cover fixed;
+  /* 日本語を語の途中で改行しない。対応していないブラウザは通常の折り返しになる */
+  word-break: auto-phrase;
+  text-wrap: pretty;
+}
+
+/* ヘッダーの漆の帯。スマホではここが漆と金蒔絵の見せ場になる */
+.urushi-band {
+  background:
+    linear-gradient(rgb(28 13 11 / 62%), rgb(28 13 11 / 62%)),
+    var(--color-urushi) url('../../images/urushi.webp') left 20% / auto 420%;
 }
 
 /* 会津木綿の縦縞。ヘッダーの細い帯にだけ使う */

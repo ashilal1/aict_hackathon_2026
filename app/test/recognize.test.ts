@@ -14,10 +14,10 @@ describe('写真の受け取り', () => {
   })
 
   it('枚数・形式・中身がおかしければエラー文を返す', () => {
-    expect(parseImages({})).toBe('写真がありません')
-    expect(parseImages({ images: Array(MAX_IMAGES + 1).fill(image) })).toBe('写真は 3 枚までです')
-    expect(parseImages({ images: [{ ...image, mediaType: 'image/gif' }] })).toBe('写真の形式が読めません')
-    expect(parseImages({ images: [{ ...image, data: '' }] })).toBe('写真が空です')
+    expect(parseImages({})).toBe('写真がねえぞ')
+    expect(parseImages({ images: Array(MAX_IMAGES + 1).fill(image) })).toBe('写真は 3 枚までだ')
+    expect(parseImages({ images: [{ ...image, mediaType: 'image/gif' }] })).toBe('写真の形式が読めねえ')
+    expect(parseImages({ images: [{ ...image, data: '' }] })).toBe('写真が空だ')
   })
 })
 

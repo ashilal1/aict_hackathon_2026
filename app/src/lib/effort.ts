@@ -1,47 +1,49 @@
+import type { CookingStyleId } from './cookingStyle'
+
 export type EffortId = 'quick' | 'standard' | 'careful'
 
 export type EffortLevel = {
   id: EffortId
-  label: string
   shortLabel: string
-  description: string
   dashiTime: string
   dashiMethod: string
-  caution: string
+  caution?: string
 }
 
 // 出汁にかける時間を軸にした仮の3段階。短時間の手順は試作後に差し替える
-export const EFFORT_LEVELS: EffortLevel[] = [
+const EFFORT_LEVELS: EffortLevel[] = [
   {
     id: 'quick',
-    label: '出汁を取らずに作る',
     shortLabel: 'すぐ作る',
-    description: 'ホタテ缶や顆粒だしなど、すぐ使える代替だしで作る',
     dashiTime: '出汁の準備 0分',
-    dashiMethod: 'ホタテ缶や顆粒だしなど、選んだ代替だしを水に加える。味付けは薄めから始める。',
-    caution: '短時間で本来の出汁を再現できる、という意味ではありません。',
+    dashiMethod: 'ホタテ缶や顆粒だしなんか、選んだ代わりのだしを水に入れてけさい。味付けは薄めから始めっせ。',
+    caution: '短時間で本来の出汁を再現できる、っつう意味ではねえ。',
   },
   {
     id: 'standard',
-    label: '短時間でうま味を重ねる',
     shortLabel: '短時間',
-    description: '手元のだし材料を具と一緒に煮ながら、うま味を重ねる',
-    dashiTime: '出汁の準備 約15分（仮）',
-    dashiMethod: '選んだだし材料を水に入れ、弱めの火で煮ながらうま味を移す。具材を加える前に味を見る。',
-    caution: '時間と手順はチーム試作前の仮案です。試作後に調整します。',
+    dashiTime: '出汁の準備 約15分',
+    dashiMethod:
+      '選んだだしの材料を水に入れて、弱めの火で煮ながらうま味を移してけさい。具を入れる前に味を見っせ。',
   },
   {
     id: 'careful',
-    label: '前日から出汁を取る',
     shortLabel: '一晩',
-    description: '干し貝柱・昆布・干し椎茸を水に浸し、じっくり出汁を取る',
     dashiTime: '前の晩から',
-    dashiMethod: '干し貝柱・昆布・干し椎茸を水に浸し、一晩置いて出汁を取る。戻し汁も捨てずに使う。',
-    caution: '店舗ヒアリングで教わった、出汁を大切にする方法です。分量は現在も試作前の仮値です。',
+    dashiMethod:
+      '干し貝柱・昆布・干し椎茸を水に浸して、一晩置いて出汁を取ってけさい。戻し汁も捨てねえで使うべ。',
+    caution: '店で教わった、出汁を大切にする方法だ。',
   },
 ]
 
 export const effortById = (id: EffortId) => EFFORT_LEVELS.find((level) => level.id === id)!
+
+// 最初に選んだ作り方と材料から、出汁の取り方を決める
+// 干し貝柱は一晩戻して使うので、選んでいれば作り方によらず前日から取る
+export function effortFor(style: CookingStyleId | null, checked: Set<string>): EffortId {
+  if (checked.has('kaibashira')) return 'careful'
+  return style === 'easy' ? 'quick' : 'standard'
+}
 
 export function cookingStepsFor(steps: string[], effort: EffortLevel): string[] {
   const withoutOvernightStep = steps.filter((step) => !step.includes('前の晩に、干し貝柱を水に浸けて戻す'))

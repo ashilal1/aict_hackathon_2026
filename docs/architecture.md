@@ -37,7 +37,7 @@ flowchart LR
   end
 
   DATA[("kozuyu.json<br/>配合テンプレ・食材<br/>作り手・店（了承の状態つき）<br/>ばあちゃんのセリフ")]
-  IMG[("ばあちゃん 360° 画像<br/>images/kozuyu-onbachan/sphere/small")]
+  IMG[("ばあちゃん 360° 画像<br/>images/kozuyu-onbachan/sphere/mid")]
   DATA --> LOGIC
   IMG --> GRANNY
 
@@ -122,6 +122,12 @@ VPC の困りごと（[VPC 2 章](products/reverse-chef-vpc.md#2-課題何に困
 - 評価の観点と項目は `kozuyu.json` の `evaluation.aspects` に入れる。いまは「観点 A（未定）」などの仮の枠で、画面にも「仮」と出す。項目が決まったら JSON を書き換えるだけでよい
 - ⚪︎／❌ をすべて付けると「結果を見る」で ⚪︎ の数を出す。保存・送信はしない（デザイン案の「評価を送る」は、送らないので言葉を変えた）
 - 紹介画面の材料の説明と会津の言葉は `kozuyu.json` の `intro` に入れた。材料の説明は [kozuyu-variations.md](kozuyu-variations.md) と `parts[].note` から書いた
+
+**変更（2026-11-06）**: 最初に作り方を選ぶ画面を足し、出汁の取り方を選ぶ画面と 2 回目の判定をなくした。
+
+- 画面の流れ: オンボーディング（使い方 → こづゆの説明 → こづゆばあちゃんの生態 → ばあちゃんっこ宣言。スキップ可）→ どんなこづゆを作るべ？ → 材料 → 判定中 → 判定の結果 → 今日のこづゆ → 調理 → できあがり → 食べた人の評価
+- 出汁の取り方は、作り方と材料から `effortFor`（`src/lib/effort.ts`）で決める。干し貝柱を選んでいれば前日から、それ以外はお手軽なら出汁を取らず、本格的と自分流なら短時間で作る
+- 判定の結果の画面に「もっとおいしくするには？」を足した。項目は `kozuyu.json` の `enhancements` に入れる
 - 下の 10/26 の見込みの点数は、画面・ロジック・JSON（`weight`・`closeness`・`tasting`・`lines.score`）から外した
 
 **10/26 のデモ用の実装（11/5 に外した）**: 11/8 のデモで流れを見せるため、点数の出し方まで先に作っていた。記録として残す。

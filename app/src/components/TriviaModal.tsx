@@ -40,7 +40,7 @@ export function TriviaModal({ row, onClose }: Props) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm font-bold text-shu">代替食材の豆知識</p>
+            <p className="text-sm font-bold text-shu">代わりの材料の豆知識</p>
             <h2 id="trivia-title" className="mt-1 text-2xl font-bold">
               {row.original} → {row.text}
             </h2>
@@ -58,7 +58,7 @@ export function TriviaModal({ row, onClose }: Props) {
 
         <dl className="mt-5 space-y-4">
           <div className="rounded-2xl bg-white p-4">
-            <dt className="font-bold">どこが違う？</dt>
+            <dt className="font-bold">どこが違うんだ？</dt>
             <dd className="mt-1 leading-relaxed text-sumi">{row.trivia.difference}</dd>
           </div>
           <div className="rounded-2xl bg-white p-4">
@@ -66,7 +66,7 @@ export function TriviaModal({ row, onClose }: Props) {
             <dd className="mt-1 leading-relaxed text-sumi">{row.trivia.tip}</dd>
           </div>
           <div className="rounded-2xl border border-kincha bg-white p-4">
-            <dt className="font-bold text-kincha">知っておいてほしいこと</dt>
+            <dt className="font-bold text-kincha">知っといてほしいこと</dt>
             <dd className="mt-1 leading-relaxed text-sumi">{row.trivia.caution}</dd>
           </div>
         </dl>

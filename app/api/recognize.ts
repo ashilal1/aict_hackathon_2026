@@ -18,13 +18,13 @@ const DEFAULT_MODEL = 'claude-opus-5-5'
 // 送られてきた本文を確かめる。おかしければ、画面に出すエラー文を返す
 export function parseImages(body: unknown): RecognizeImage[] | string {
   const images = (body as { images?: unknown } | null)?.images
-  if (!Array.isArray(images) || images.length === 0) return '写真がありません'
-  if (images.length > MAX_IMAGES) return `写真は ${MAX_IMAGES} 枚までです`
+  if (!Array.isArray(images) || images.length === 0) return '写真がねえぞ'
+  if (images.length > MAX_IMAGES) return `写真は ${MAX_IMAGES} 枚までだ`
   for (const image of images) {
     const { mediaType, data } = (image ?? {}) as Partial<RecognizeImage>
-    if (!MEDIA_TYPES.includes(mediaType as MediaType)) return '写真の形式が読めません'
-    if (typeof data !== 'string' || data.length === 0) return '写真が空です'
-    if (data.length > MAX_BASE64_LENGTH) return '写真が大きすぎます'
+    if (!MEDIA_TYPES.includes(mediaType as MediaType)) return '写真の形式が読めねえ'
+    if (typeof data !== 'string' || data.length === 0) return '写真が空だ'
+    if (data.length > MAX_BASE64_LENGTH) return '写真が大きすぎる'
   }
   return images as RecognizeImage[]
 }
@@ -64,14 +64,14 @@ const json = (status: number, body: unknown) => Response.json(body, { status })
 
 export async function POST(request: Request): Promise<Response> {
   if (!process.env.ANTHROPIC_API_KEY) {
-    return json(503, { error: '写真の判定は、いま使えません（API キーが未設定）' })
+    return json(503, { error: '写真の判定は、今使えねえ（API キーが未設定）' })
   }
 
   let images: RecognizeImage[] | string
   try {
     images = parseImages(await request.json())
   } catch {
-    images = '写真を読みこめませんでした'
+    images = '写真を読み込めねがった'
   }
   if (typeof images === 'string') return json(400, { error: images })
 
@@ -102,21 +102,21 @@ export async function POST(request: Request): Promise<Response> {
     })
 
     if (response.stop_reason === 'refusal') {
-      return json(422, { error: 'この写真は判定できませんでした。手でチェックしてください' })
+      return json(422, { error: 'この写真は見分けらんねがった。手で選んでけさい' })
     }
     const text = response.content.find((block) => block.type === 'text')
-    if (!text || text.type !== 'text') return json(502, { error: '判定の結果が空でした' })
+    if (!text || text.type !== 'text') return json(502, { error: '判定の結果が空だった' })
     return json(200, { ids: pickKnownIds(JSON.parse(text.text), pantry) })
   } catch (error) {
     if (error instanceof Anthropic.RateLimitError) {
-      return json(429, { error: 'いま混み合っています。少し待ってからもう一度' })
+      return json(429, { error: '今混んでる。ちっと待ってからもう一回やってけさい' })
     }
     if (error instanceof Anthropic.APIError) {
       console.error(`recognize: Claude API error ${error.status}`)
-      return json(502, { error: '判定に失敗しました。手でチェックしてください' })
+      return json(502, { error: 'うまぐ見られねがった。手で選んでけさい' })
     }
     if (error instanceof SyntaxError) {
-      return json(502, { error: '判定の結果が読めませんでした' })
+      return json(502, { error: '判定の結果が読めねがった' })
     }
     throw error
   }

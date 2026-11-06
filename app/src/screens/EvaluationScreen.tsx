@@ -43,7 +43,10 @@ export function EvaluationScreen({ data, onRestart }: Props) {
               {aspect.items.map((item) => (
                 <li key={item.id} className="border-t border-[#f0ebe0] py-2 first:border-t-0">
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[15px] font-bold text-sumi">{item.text}</span>
+                    <div>
+                      <p className="text-[15px] font-bold text-sumi">{item.text}</p>
+                      {item.hint && <p className="mt-0.5 text-xs leading-relaxed text-sumi">{item.hint}</p>}
+                    </div>
                     <span role="group" aria-label={`${item.text}の評価`} className="flex shrink-0 gap-1.5">
                       {[true, false].map((value) => {
                         const on = answers[item.id] === value

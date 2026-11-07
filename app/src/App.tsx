@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import kozuyu from './data/kozuyu.json'
 import type { KozuyuData, RecognizedFood } from './data/types'
 import { buildResult } from './lib/buildResult'
-import { loadSpinImages } from './lib/granny'
+import { loadSpinVideo } from './lib/granny'
 import { OnboardingScreen } from './screens/OnboardingScreen'
 import { CookingStyleScreen } from './screens/CookingStyleScreen'
 import { InputScreen } from './screens/InputScreen'
@@ -40,7 +40,7 @@ export default function App() {
 
   useEffect(() => {
     // 判定シーンをすぐ始められるように、入力画面のうちに読み込んでおく
-    void loadSpinImages()
+    void loadSpinVideo()
   }, [])
   useEffect(() => {
     window.scrollTo(0, 0)

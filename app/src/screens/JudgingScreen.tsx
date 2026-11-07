@@ -1,32 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { BekoProgress } from '../components/parts'
-import { GRANNY_FRONT, SPIN_MS, loadSpinImages, spinBlend, type SpinFrame } from '../lib/granny'
+import { GRANNY_FRONT, loadSpinVideo } from '../lib/granny'
 
-const CANVAS_SIZE = 1024
-// 画像がこの時間でそろわなければ、回さずに正面の画像のまま進める
+// 動画がこの時間でそろわなければ、回さずに正面の画像のまま進める
 const LOAD_WAIT_MS = 2500
-
-function drawFrame(ctx: CanvasRenderingContext2D, frame: SpinFrame, alpha: number) {
-  const half = CANVAS_SIZE / 2
-  ctx.save()
-  ctx.globalAlpha = alpha
-  ctx.translate(half, half)
-  ctx.rotate((frame.rot * Math.PI) / 180)
-  ctx.drawImage(frame.image, -half, -half, CANVAS_SIZE, CANVAS_SIZE)
-  ctx.restore()
-}
-
-// t のときの絵を描く。lighter で足すと、切り替え中に重なった部分が透けずに混ざる
-function drawSpin(ctx: CanvasRenderingContext2D, frames: SpinFrame[], t: number) {
-  const { from, to, fade } = spinBlend(t)
-  ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE)
-  ctx.globalCompositeOperation = 'lighter'
-  if (fade < 1) drawFrame(ctx, frames[from], 1 - fade)
-  if (fade > 0) drawFrame(ctx, frames[to], fade)
-}
-
 // 横と縦に 1 周ずつ回って正面で止まり、少し間を置いて結果へ進む
 const HOLD_MS = 700
+// 動画の長さが読めなかったときの回転の時間
+const SPIN_MS = 3000
+// 再生が止まってしまっても、この時間を過ぎたら先へ進める
+const STALL_MS = 1500
 
 type Props = {
   line: string
@@ -37,31 +20,42 @@ type Props = {
 
 export function JudgingScreen({ line, labels, onDone }: Props) {
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const [spinning, setSpinning] = useState(false)
   const [progress, setProgress] = useState(0)
 
   useEffect(() => {
     let stopped = false
     let raf = 0
+    const element = videoRef.current
 
-    const run = (frames: SpinFrame[] | null) => {
+    // 動画を回せたら回し、回せなければ正面の画像のまま HOLD_MS だけ待つ
+    const run = async (src: string | null) => {
       if (stopped) return
-      const ctx = canvasRef.current?.getContext('2d')
-      const spin = frames && ctx ? { frames, ctx } : null
-      const spinMs = spin ? SPIN_MS : 0
-      const total = spinMs + HOLD_MS
-      if (spin) {
-        spin.ctx.imageSmoothingQuality = 'high'
-        drawSpin(spin.ctx, spin.frames, 0)
-        setSpinning(true)
+      let video = src ? element : null
+      let spinMs = 0
+      if (video && src) {
+        video.src = src
+        try {
+          // 省電力モードなどで自動再生できない端末では、回さずに進める
+          await video.play()
+          if (stopped) return
+          spinMs = Number.isFinite(video.duration) ? video.duration * 1000 : SPIN_MS
+          setSpinning(true)
+        } catch {
+          video = null
+        }
       }
+      if (stopped) return
+      const total = spinMs + HOLD_MS
       const start = performance.now()
+      let holdStart: number | null = null
       const tick = (now: number) => {
-        const elapsed = now - start
-        if (spin) drawSpin(spin.ctx, spin.frames, elapsed / spinMs)
-        setProgress(Math.min(elapsed / total, 1))
-        if (elapsed < total) {
+        if (holdStart === null && (!video || video.ended || now - start > spinMs + STALL_MS)) holdStart = now
+        const spun = video ? Math.min(video.currentTime * 1000, spinMs) : 0
+        const held = holdStart === null ? 0 : now - holdStart
+        setProgress(Math.min((spun + held) / total, 1))
+        if (held < HOLD_MS) {
           raf = requestAnimationFrame(tick)
         } else {
           onDone()
@@ -71,15 +65,16 @@ export function JudgingScreen({ line, labels, onDone }: Props) {
     }
 
     if (reduceMotion) {
-      run(null)
+      void run(null)
     } else {
       const giveUp = new Promise<null>((resolve) => setTimeout(() => resolve(null), LOAD_WAIT_MS))
-      void Promise.race([loadSpinImages(), giveUp]).then(run)
+      void Promise.race([loadSpinVideo(), giveUp]).then(run)
     }
 
     return () => {
       stopped = true
       cancelAnimationFrame(raf)
+      element?.pause()
     }
   }, [reduceMotion, onDone])
 
@@ -97,21 +92,20 @@ export function JudgingScreen({ line, labels, onDone }: Props) {
         />
       </svg>
       <div className="relative w-full max-w-md md:max-w-lg">
-        {/* 全身が収まるように、正方形の画像をそのまま見せる */}
-        {!spinning && (
-          <img
-            src={GRANNY_FRONT}
-            alt="こづゆばあちゃんが材料を見ている"
-            className="mx-auto aspect-square max-h-[52dvh] w-full object-contain"
-          />
-        )}
-        <canvas
-          ref={canvasRef}
-          width={CANVAS_SIZE}
-          height={CANVAS_SIZE}
-          role="img"
-          aria-label="こづゆばあちゃんが材料を見ている"
-          className={`mx-auto aspect-square max-h-[52dvh] w-full object-contain ${spinning ? '' : 'hidden'}`}
+        {/* 全身が収まるように、正方形の画像をそのまま見せる。回っている間は同じ場所に動画を重ねる */}
+        <img
+          src={GRANNY_FRONT}
+          alt="こづゆばあちゃんが材料を見ている"
+          className={`mx-auto aspect-square max-h-[52dvh] w-full object-contain ${spinning ? 'invisible' : ''}`}
+        />
+        {/* 動画の背景は白。multiply で重ねると白が消えて、後ろの生成りと山が見える */}
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload="auto"
+          aria-hidden
+          className={`absolute inset-0 h-full w-full object-contain mix-blend-multiply ${spinning ? '' : 'opacity-0'}`}
         />
         <div className="absolute top-[30%] left-0 rounded-2xl bg-white px-4 py-2 text-lg font-bold shadow-md md:-left-8 md:text-xl">
           {line}

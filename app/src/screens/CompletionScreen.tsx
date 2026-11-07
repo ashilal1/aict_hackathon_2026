@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { KozuyuData } from '../data/types'
 import type { Result } from '../lib/buildResult'
-import { Bubble, Card, GrannyFigure } from '../components/parts'
+import { AizuSection, Bubble, GrannyFigure } from '../components/parts'
 import akabeko from '../../../images/akabeko.webp'
 
 type Props = { data: KozuyuData; result: Result; onEvaluate: () => void; onRestart: () => void }
@@ -64,10 +64,11 @@ export function CompletionScreen({ data, result, onEvaluate, onRestart }: Props)
         食べたら、どうだったか付けてけさい
       </button>
 
-      <div className={`grid gap-4 md:items-start ${result.aizu.length > 0 ? 'md:grid-cols-2' : ''}`}>
+      <AizuSection>
         {result.aizu.length > 0 && (
-          <Card title="もっと本場に近づけるなら">
-            <ul className="space-y-3">
+          <div className="mt-7 md:mt-9">
+            <h3 className="mb-3 text-lg font-bold">会津で手に入れたいもの</h3>
+            <ul className={`grid gap-3 ${result.aizu.length > 1 ? 'md:grid-cols-2' : ''}`}>
               {result.aizu.map((item) => (
                 <li key={item.original} className="rounded-xl bg-kinari p-3">
                   <p className="font-bold">{item.original}</p>
@@ -89,29 +90,26 @@ export function CompletionScreen({ data, result, onEvaluate, onRestart }: Props)
                 </li>
               ))}
             </ul>
-          </Card>
+          </div>
         )}
-
-        <div className="flex flex-col gap-4">
-          {result.memo && (
-            <button
-              type="button"
-              onClick={onCopy}
-              className="min-h-14 w-full rounded-full bg-ai text-[17px] font-bold text-white shadow-lg"
-            >
-              {copied ? '買い物メモをコピーしたぞ' : '会津で買うもんをメモするべ'}
-            </button>
-          )}
-          <p className="text-center text-lg font-bold">代用でここまで。残りは、会津で。</p>
+        {result.memo && (
           <button
             type="button"
-            onClick={onRestart}
-            className="min-h-12 w-full rounded-full border-2 border-ai font-bold"
+            onClick={onCopy}
+            className="mt-5 min-h-14 w-full rounded-full bg-ai text-[17px] font-bold text-white shadow-lg"
           >
-            もう一回作るべ
+            {copied ? '買い物メモをコピーしたぞ' : '会津で買うもんをメモするべ'}
           </button>
-        </div>
-      </div>
+        )}
+      </AizuSection>
+
+      <button
+        type="button"
+        onClick={onRestart}
+        className="min-h-12 w-full rounded-full border-2 border-ai font-bold"
+      >
+        もう一回作るべ
+      </button>
     </div>
   )
 }

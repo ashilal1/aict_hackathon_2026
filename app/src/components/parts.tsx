@@ -124,3 +124,19 @@ export function BekoProgress({ value, label }: { value: number; label: string })
     </div>
   )
 }
+
+// アプリのいちばん伝えたい一言。「会津で。」を主役にして、会津へ来てもらう呼びかけとして見せる。
+// 前半は前置きとして小さく、「会津で。」だけを朱色で特大にする。children には会津で手に入れるものを入れる
+export function AizuSection({ children }: { children?: ReactNode }) {
+  return (
+    <section className="rounded-3xl bg-white px-5 pt-7 pb-6 shadow-md ring-2 ring-kincha md:px-10 md:pt-10 md:pb-8">
+      <h2 className="text-center leading-none font-bold">
+        <span className="block text-xl text-sumi md:text-3xl">代用でここまで。残りは、</span>
+        <span className="mt-3 block text-[64px] tracking-wider text-shu md:mt-4 md:text-[112px]">
+          会津で。
+        </span>
+      </h2>
+      {children}
+    </section>
+  )
+}

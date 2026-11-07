@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { KozuyuData } from '../data/types'
-import { Bubble, Card, GrannyFigure } from '../components/parts'
+import { AizuSection, Bubble, Card, GrannyFigure } from '../components/parts'
 
 type Props = {
   data: KozuyuData
@@ -107,7 +107,7 @@ export function EvaluationScreen({ data, onRestart }: Props) {
 
       {shown && (
         <>
-          <p className="text-center font-bold">代用でここまで。残りは、会津で。</p>
+          <AizuSection />
           <button
             type="button"
             onClick={onRestart}
